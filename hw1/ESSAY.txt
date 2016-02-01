@@ -1,18 +1,27 @@
-Replace this file with the answers to the essay questions here.
-----------------------------------------------------------------------
+1. Token-based ngram would be expected to perform better because fits more closely
+to how a language works which consists of individual word with its own meaning. Since 
+most human languages are made up of same roman alphabets, using character-based ngram
+may generate similar ngram for all languages since each character does not provide 
+any information about the language. 
 
-1. In the homework assignment, we are using character-based ngrams,
-i.e., the gram units are characters. Do you expect token-based ngram
-models to perform better?
+2. Generally an increase of training data will increase the accuracy of a model 
+provided that there are variation amongs the training data. However, an increase in 
+data does not always yield higher accuracy as it may lead to overfitting which causes
+the model to generalize to unseen data. Providing only more data for Indonesian will increase 
+our model since we have least amount of training data for Indonesian compared to the other
+two languages.
 
-2. What do you think will happen if we provided more data for each
-category for you to build the language models? What if we only
-provided more data for Indonesian?
+3. Stripping out punctuation may increase the accuracy as the grammatical structure of 
+document does not provide as much information about the language compared to the word
+itself. Besides that, these punctuations could decrease accuracy of our model since 
+we are performing character-based ngram. As for converting upper case characters to 
+lower case may increase the accuracy because of how language works where the casing does
+not affect the meaning of a word. In our current model, 'tomato' would not match with 
+'Tomato'; even though both carries the same meaning in the English language.
 
-3. What do you think will happen if you strip out punctuations and/or
-numbers? What about converting upper case characters to lower case?
-
-4. We use 4-gram models in this homework assignment. What do you think
-will happen if we varied the ngram size, such as using unigrams,
-bigrams and trigrams?
+4. It is expected that a higher n-gram would yield a more accurate model since we could
+have more context or information to calculate probability of a token. However, it will 
+not yield much difference if we are using a character-based ngram. An alternative would
+be to replace the add-one smoothing with "back-off" algorithm which reduces the 
+n-gram when a word is not detected.
 
