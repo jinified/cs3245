@@ -1,16 +1,21 @@
 This is the README file for A0112213E's submission
 
+== Personal Information ==
+Matric No: A0112213E
+Email: a0112213@u.nus.edu
+
 == General Notes about this assignment ==
 
-Place your comments or requests here for Min to read.  Discuss your
-architecture or experiments in general.  A paragraph or two is usually
-sufficient.
+A language model is constructed for { malaysian, indonesian, tamil } with 
+add-one smoothing to 4-gram from training data. Language models are stored in a
+dictionary and the probability is calculated via nltk's FreqDist class which tabulates
+each occurence of a 4-gram in training data. 
 
 == Files included with this submission ==
 
-List the files in your submission here and provide a short 1 line
-description of each file.  Make sure your submission's files are named
-and formatted correctly.
+utility.py 	     - smaller routines used to build LM and run test
+build_test_LM.py - main module used to get predection for any input file
+eval.py          - compares predicted labels with correct labels  
 
 == Statement of individual work ==
 
@@ -33,5 +38,3 @@ I suggest that I should be graded as follows:
 
 == References ==
 
-<Please list any websites and/or people you consulted with for this
-assignment and state their role>

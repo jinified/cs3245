@@ -4,15 +4,23 @@ from nltk.util import ngrams
 import nltk
 import sys
 import getopt
+from utility import *
 
 def build_LM(in_file):
     """
     build language models for each label
     each line in in_file contains a label and an URL separated by a tab(\t)
     """
-    print 'building language models...'
-    # This is an empty method
-    # Pls implement your code in below
+    print('building training data from {}'.format(in_file))
+    # Stores list of sentences for each language label
+    training_dict = read_train_input("input.train.txt")
+    print('generating ngrams model for each language')
+    lang_ngram = {k: generate_ngram(4, v) for k,v in training_dict.items()}
+    # Generates total vocabulary covered by the training data
+    vocab = generate_vocab(lang_ngram.values())
+    # Generate probabilistic LM from all the ngrams
+    LM = {k: LangModel(k, v, vocab) for k,v in lang_ngram.items()}
+    return LM
     
 def test_LM(in_file, out_file, LM):
     """
@@ -20,9 +28,10 @@ def test_LM(in_file, out_file, LM):
     each line of in_file contains an URL
     you should print the most probable label for each URL into out_file
     """
-    print "testing language models..."
-    # This is an empty method
-    # Pls implement your code in below
+    print('reading test input')
+    test_input = read_test_input(in_file)
+    print('generating output')
+    processQueries(test_input, LM, out_file)
 
 def usage():
     print "usage: " + sys.argv[0] + " -b input-file-for-building-LM -t input-file-for-testing-LM -o output-file"
@@ -46,8 +55,7 @@ if input_file_b == None or input_file_t == None or output_file == None:
     usage()
     sys.exit(2)
 
-LM = build_LM(input_file_b)
-test_LM(input_file_t, output_file, LM)
-
 if __name__ == "__main__":
-    print("hello");
+    LM = build_LM(input_file_b)
+    test_LM(input_file_t, output_file, LM)
+
