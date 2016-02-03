@@ -11,9 +11,15 @@ add-one smoothing to 4-gram from training data. Language models are stored in a
 dictionary and the probability is calculated via nltk's FreqDist class which tabulates
 each occurence of a 4-gram in training data. 
 
+== Result of experimenting ==
+1. Increasing N does not yield significantly better result due to limited amount of training data.
+2. I have decided to use the number of matched ngram instead of probability because it may 
+occur that an unknown may match with a particulat category.Therefore, the number of different match 
+is used as a criteria and determined via trial and error.
+
 == Files included with this submission ==
 
-utility.py 	     - smaller routines used to build LM and run test
+utility.py 	     - utility module wrapping nltk's functions
 build_test_LM.py - main module used to get predection for any input file
 eval.py          - compares predicted labels with correct labels  
 
@@ -30,11 +36,17 @@ printed) from the discussions.
 [/] I, A0112213E, did not follow the class rules regarding homework
 assignment, because of the following reason:
 
-<Please fill in>
+In my opinion, we should be allowed to produce the code that would produce 
+the best result with the resources given. Besides that, I believe the rules 
+are there so that we realise the limitation of certain techniques or methodology and 
+not to shackle the student from trying their best.
 
 I suggest that I should be graded as follows:
 
-<Please fill in>
+I believe the accuracy of the code should not be used as a primary criteria to 
+grade this assignment as we are provided with limited training data and we are required
+to follow certain rules such as using 4-gram and character-based ngram.
 
 == References ==
 
+N/A
