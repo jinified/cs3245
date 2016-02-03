@@ -21,6 +21,7 @@ class LangModel:
         self.total_count = self.init_total_samples()
         self.gram_from_other_LM = math.log(1.0/(self.total_count), 2)
         self.pdf = self.initProb()
+        self.matched_ngram = 0
 
     def init_total_samples(self):
         self.total_smooth = len(set(self.vocab) - set(self.ngrams))
@@ -34,6 +35,7 @@ class LangModel:
 
     def get_log_prob(self, target_gram):
         if target_gram in self.pdf:
+            self.matched_ngram += 1
             return self.pdf[target_gram]
         elif target_gram in self.vocab:
             return self.gram_from_other_LM
@@ -42,7 +44,9 @@ class LangModel:
             return 0
 
     def get_sentence_prob(self, target_grams):
+        self.matched_ngram = 0
         result = self.lang_name, sum(self.get_log_prob(i) for i in target_grams)
+        # Reset matched ngram
         return result
 
 
@@ -57,7 +61,7 @@ def generate_single_ngram(n, sentence):
     return [''.join(i) for i in ngrams(list(sentence), n)]
 
 def generate_ngram(n, sentences):
-    result = [generate_single_ngram(4, i) for i in sentences]
+    result = [generate_single_ngram(n, i) for i in sentences]
     #flatten the list
     return list(chain.from_iterable(result))
         
@@ -93,19 +97,19 @@ def write_output(out_name, output):
 
 ''' Calculation '''
 
-def calcHighestProb(sentence, LModels):
-    target_grams = generate_single_ngram(4, sentence)
+def calcHighestProb(sentence, LModels, n=4):
+    target_grams = generate_single_ngram(n, sentence)
     # Converts to dictionary 
     prob_result = dict([lm.get_sentence_prob(target_grams) for k,lm in LModels.items()])
     predictedLabel = max(prob_result, key=prob_result.get)
-    if(prob_result[predictedLabel] == 0):
+    if(LModels[predictedLabel].matched_ngram  < 3):
         predictedLabel = 'other'
     return predictedLabel + " " + sentence
 
-def processQueries(query_list, LModels, out_name):
+def processQueries(query_list, LModels, out_name, n=4):
     res = []
     for num, sentence in enumerate(query_list):
-        predicted = calcHighestProb(sentence, LModels)
+        predicted = calcHighestProb(sentence, LModels, n)
         res.append(predicted)
     write_output(out_name, "\n".join(res))
 
