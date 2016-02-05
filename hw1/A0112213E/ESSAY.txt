@@ -7,7 +7,7 @@ any information about the language.
 2. Generally an increase of training data will increase the accuracy of a model 
 provided that there are variation amongs the training data. However, an increase in 
 data does not always yield higher accuracy as it may lead to overfitting which causes
-the model to generalize to unseen data. Providing only more data for Indonesian will increase 
+the model to generalize poorly with unseen data. Providing only more data for Indonesian will increase 
 our model since we have least amount of training data for Indonesian compared to the other
 two languages.
 
@@ -21,7 +21,8 @@ not affect the meaning of a word. In our current model, 'tomato' would not match
 
 4. It is expected that a higher n-gram would yield a more accurate model since we could
 have more context or information to calculate probability of a token. However, it will 
-not yield much difference if we are using a character-based ngram. An alternative would
-be to replace the add-one smoothing with "back-off" algorithm which reduces the 
-n-gram when a word is not detected.
+not yield much difference if we are using a character-based ngram with our naive 
+approach to calculating probability. Therefore, the n is only part of the equation and beyong 
+a certain order of n there is a dimnishing return at a higher computation cost. Varying 
+the n would be beneficial which is used by "back-off" algorithm to handle unseen word.
 
