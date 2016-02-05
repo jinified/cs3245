@@ -8,8 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
 from nltk.probability import *
 
-# Should we lowercase all the words 
-
+''' Represents a Language Model for a selected langugage i.e malaysian'''
 class LangModel:
 
     def __init__(self, lang_name, ngrams, vocab):
@@ -20,17 +19,16 @@ class LangModel:
         self.total_smooth = 1
         self.total_count = self.init_total_samples()
         self.gram_from_other_LM = math.log(1.0/(self.total_count), 2)
-        self.pdf = self.initProb()
+        self.pdf = self.init_prob()
         self.matched_ngram = 0
 
     def init_total_samples(self):
         self.total_smooth = len(set(self.vocab) - set(self.ngrams))
-        # Calculates total number of samples after smoothing
+        '''Calculates total number of samples after smoothing'''
         total_count = self.fdist.B()*self.total_smooth + self.fdist.N() + self.total_smooth;
         return total_count
 
-    def initProb(self):
-        # Number of ngrams not in current LM
+    def init_prob(self):
         return {k:math.log((v+self.total_smooth)/float(self.total_count),2) for k,v in self.fdist.items()}
 
     def get_log_prob(self, target_gram):
@@ -40,36 +38,25 @@ class LangModel:
         elif target_gram in self.vocab:
             return self.gram_from_other_LM
         else:
-            # gram does not match with vocab
             return 0
 
     def get_sentence_prob(self, target_grams):
+        '''Reset matched ngram after each query sentence'''
         self.matched_ngram = 0
         result = self.lang_name, sum(self.get_log_prob(i) for i in target_grams)
-        # Reset matched ngram
         return result
 
 
-
-''' Statistics '''
-
-def generate_single_ngram(n, sentence):
-    """
-    param n: number of gram 
-    return list of 4grams as string 
-    """
+def generate_sentence_ngram(n, sentence):
+    ''' Generates ngram represented by a string for one sentence'''
     return [''.join(i) for i in ngrams(list(sentence), n)]
 
 def generate_ngram(n, sentences):
-    result = [generate_single_ngram(n, i) for i in sentences]
-    #flatten the list
+    result = [generate_sentence_ngram(n, i) for i in sentences]
     return list(chain.from_iterable(result))
         
 def generate_vocab(langs):
-    """
-    param langs: list of ngrams 
-    return vocabulary
-    """
+    '''Returns vocabulary from training data'''
     return set().union(*langs)
 
 ''' Input/Output '''
@@ -97,36 +84,19 @@ def write_output(out_name, output):
 
 ''' Calculation '''
 
-def calcHighestProb(sentence, LModels, n=4):
-    target_grams = generate_single_ngram(n, sentence)
-    # Converts to dictionary 
+def calc_highest_prob(sentence, LModels, n=4):
+    ''' Returns language  with highest probability for the sentence'''
+    target_grams = generate_sentence_ngram(n, sentence)
     prob_result = dict([lm.get_sentence_prob(target_grams) for k,lm in LModels.items()])
     predictedLabel = max(prob_result, key=prob_result.get)
     if(LModels[predictedLabel].matched_ngram  < 3):
         predictedLabel = 'other'
     return predictedLabel + " " + sentence
 
-def processQueries(query_list, LModels, out_name, n=4):
+def process_queries(query_list, LModels, out_name, n=4):
     res = []
     for num, sentence in enumerate(query_list):
-        predicted = calcHighestProb(sentence, LModels, n)
+        predicted = calc_highest_prob(sentence, LModels, n)
         res.append(predicted)
     write_output(out_name, "\n".join(res))
 
-
-def main():
-    # reading input 
-    lang_dict = read_train_input("input.train.txt")
-    query_list = read_test_input("input.test.txt")
-
-    # generate ngrams
-    lang_ngram = {k: generate_ngram(4, v) for k,v in lang_dict.items()}
-
-    # generate total vocab of the three LMs
-    vocab = generate_vocab(lang_ngram.values())
-
-    LModels = {k: LangModel(k, v, vocab) for k,v in lang_ngram.items()}
-    prediction = processQueries(query_list, LModels, "output.txt")
-
-if __name__ == "__main__":
-    main()

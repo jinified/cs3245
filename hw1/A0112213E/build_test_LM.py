@@ -9,13 +9,13 @@ from utility import *
 def build_LM(in_file):
     """
     build language models for each label
-    each line in in_file contains a label and an URL separated by a tab(\t)
     """
     print('building training data from {}'.format(in_file))
     # Stores list of sentences for each language label
     training_dict = read_train_input("input.train.txt")
+
     print('generating ngrams model for each language')
-    lang_ngram = {k: generate_ngram(4, v) for k,v in training_dict.items()}
+    lang_ngram = {k: generate_ngram(6, v) for k,v in training_dict.items()}
     # Generates total vocabulary covered by the training data
     vocab = generate_vocab(lang_ngram.values())
     # Generate probabilistic LM from all the ngrams
@@ -30,8 +30,9 @@ def test_LM(in_file, out_file, LM):
     """
     print('reading test input')
     test_input = read_test_input(in_file)
+
     print('generating output')
-    processQueries(test_input, LM, out_file)
+    process_queries(test_input, LM, out_file, 6)
 
 def usage():
     print "usage: " + sys.argv[0] + " -b input-file-for-building-LM -t input-file-for-testing-LM -o output-file"
