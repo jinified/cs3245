@@ -6,21 +6,21 @@ Email: a0112213@u.nus.edu
 
 == General Notes about this assignment ==
 
-A language model is constructed for { malaysian, indonesian, tamil } with 
-add-one smoothing to 4-gram from training data. Language models are stored in a
-dictionary and the probability is calculated via nltk's FreqDist class which tabulates
-each occurence of a 4-gram in training data. 
+For each language in training data, a 6-gram language model is constructed with add-one
+smoothing. The decision to use a 6-gram is made a simple counting method is used to 
+calculate probability of the ngram model. Besides that, padding was not considered 
+due to increase in storage space needed and little improvement to overall accuracy of the 
+language model. In order to account for "alien" language, a simple threshold on 
+the different number of matched ngram is used because there is a possibility that 
+the "alien" language may match with a language model due to false positive. 
 
-== Result of experimenting ==
-1. Increasing N does not yield significantly better result due to limited amount of training data.
-2. I have decided to use the number of matched ngram instead of probability because it may 
-occur that an unknown may match with a particulat category.Therefore, the number of different match 
-is used as a criteria and determined via trial and error.
 
 == Files included with this submission ==
 
+ESSAY.txt		 - answers to essay questions
+README.txt		 - readme file
 utility.py 	     - utility module wrapping nltk's functions
-build_test_LM.py - main module used to get predection for any input file
+build_test_LM.py - main module used to get prediction for any input file
 eval.py          - compares predicted labels with correct labels  
 
 == Statement of individual work ==
@@ -45,8 +45,9 @@ I suggest that I should be graded as follows:
 
 I believe the accuracy of the code should not be used as a primary criteria to 
 grade this assignment as we are provided with limited training data and we are required
-to follow certain rules such as using 4-gram and character-based ngram.
+to follow certain rules such as character-based ngram.
 
 == References ==
 
-N/A
+1. http://stackoverflow.com/questions/2151517/pythonic-way-to-create-union-of-all-values-contained-in-multiple-lists
+2. Discuss with Zhu Liang about possible approach to deal with unseen cases
