@@ -3,6 +3,7 @@ import os
 import sys
 import getopt
 import glob
+import math
 from collections import defaultdict
 
 from nltk.tokenize import sent_tokenize
@@ -40,6 +41,10 @@ def generate_word_dict(filedir):
             word_dict[word].append(i)
     return word_dict
 
+def generate_skiplist(posting_list):
+    skip_len = math.floor(math.sqrt(len(posting_list)))
+    return [i for i in posting_list[::int(skip_len)]]
+
 def index():
     ''' TODO remove last newline'''
     global input_file_i, dictionary_file_d, posting_file_p
@@ -73,5 +78,6 @@ if input_file_i == None or dictionary_file_d == None or posting_file_p == None:
     sys.exit(2)
 
 if __name__ == "__main__":
-    index();
-
+    ls = [1,2,3,4,5,6,7,8,9]
+    skip = generate_skiplist(ls)
+    print(skip)
