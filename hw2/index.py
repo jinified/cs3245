@@ -1,13 +1,55 @@
 #!/use/bin/env python3
+import os
 import sys
 import getopt
+import glob
+from collections import defaultdict
 
 from nltk.tokenize import sent_tokenize
+from nltk.stem.porter import PorterStemmer
+from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
 ''' Index files into dictornary and posting list
 Expected operations: tokenize, stemmer and case folding 
 '''
 
+def create_corpus(filedir):
+    return PlaintextCorpusReader(filedir, ".*")
+
+def get_doc_ids(filedir):
+    return sorted(os.listdir(filedir), key=lambda x: int(x))
+
+
+def preprocess_words(word_list, stemmer):
+    '''
+    Return: stemmed and case folded words
+    '''
+    return [stemmer.stem(i.lower()) for i in word_list]
+
+def generate_word_dict(filedir):
+    ''' Generates dictionary of posting list'''
+    stemmer = PorterStemmer()
+    corpus = create_corpus(filedir)
+    doc_ids = get_doc_ids(filedir)
+    word_dict = defaultdict(list)
+    print("Generating Word Dict")
+    for i in doc_ids:
+        words = preprocess_words(corpus.words(i), stemmer)
+        
+        for word in words:
+            word_dict[word].append(i)
+    return word_dict
+
+def index():
+    ''' TODO remove last newline'''
+    global input_file_i, dictionary_file_d, posting_file_p
+    word_dict = generate_word_dict(input_file_i)
+    with open(dictionary_file_d, "wu") as d, open(posting_file_p, "w") as p:
+        print("Writing to files")
+        for k, v in word_dict.items():
+            d.write(k + "\n")
+            p.write(",".join(v) + "\n")
+    
 def usage():
     print "usage: " + sys.argv[0] + " -i training-input-file -d output-dictionary-file -p output-posting-file"
 
@@ -31,5 +73,5 @@ if input_file_i == None or dictionary_file_d == None or posting_file_p == None:
     sys.exit(2)
 
 if __name__ == "__main__":
-    pass
+    index();
 
