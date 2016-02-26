@@ -22,5 +22,10 @@ def get_doc_ids(filedir):
 def normalize_token(token):
     return stemmer.stem(token.lower())
 
+def get_posting_list(index, filepath):
+    '''Retrieves a posting list given a file handle'''
+    with open(filepath) as postings:
+        return postings[index]
+    
 if __name__ == "__main__":
     pass

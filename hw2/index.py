@@ -25,7 +25,7 @@ def generate_word_dict(filedir):
     word_dict = defaultdict(list)
     print("Generating Word Dict")
     for i in doc_ids:
-        words = [normalize_token(j) for j in corpus.words(i)]
+        words = [normalize_token(j) for j in set(corpus.words(i))]
         
         for word in words:
             word_dict[word].append(i)
