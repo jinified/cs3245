@@ -27,13 +27,13 @@ eval.py          - compares predicted labels with correct labels
 
 Please initial one of the following statements.
 
-[/] I, A0112213E, certify that I have followed the CS 3245 Information
+[x] I, A0112213E, certify that I have followed the CS 3245 Information
 Retrieval class guidelines for homework assignments.  In particular, I
 expressly vow that I have followed the Facebook rule in discussing
 with others in doing the assignment and did not take notes (digital or
 printed) from the discussions.  
 
-[/] I, A0112213E, did not follow the class rules regarding homework
+[x] I, A0112213E, did not follow the class rules regarding homework
 assignment, because of the following reason:
 
 In my opinion, we should be allowed to produce the code that would produce 

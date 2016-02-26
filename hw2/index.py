@@ -1,10 +1,12 @@
 #!/use/bin/env python3
+
 import os
 import sys
 import getopt
 import glob
 import math
 from collections import defaultdict
+from collections import OrderedDict
 
 from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
@@ -39,17 +41,13 @@ def generate_word_dict(filedir):
         
         for word in words:
             word_dict[word].append(i)
-    return word_dict
-
-def generate_skiplist(posting_list):
-    skip_len = math.floor(math.sqrt(len(posting_list)))
-    return [i for i in posting_list[::int(skip_len)]]
+    return OrderedDict(sorted(word_dict.items()))
 
 def index():
     ''' TODO remove last newline'''
     global input_file_i, dictionary_file_d, posting_file_p
     word_dict = generate_word_dict(input_file_i)
-    with open(dictionary_file_d, "wu") as d, open(posting_file_p, "w") as p:
+    with open(dictionary_file_d, "w") as d, open(posting_file_p, "w") as p:
         print("Writing to files")
         for k, v in word_dict.items():
             d.write(k + "\n")
@@ -78,6 +76,4 @@ if input_file_i == None or dictionary_file_d == None or posting_file_p == None:
     sys.exit(2)
 
 if __name__ == "__main__":
-    ls = [1,2,3,4,5,6,7,8,9]
-    skip = generate_skiplist(ls)
-    print(skip)
+    index()
