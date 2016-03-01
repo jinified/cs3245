@@ -4,6 +4,7 @@ import sys
 import getopt
 import glob
 import math
+
 from collections import defaultdict
 from collections import OrderedDict
 
@@ -13,12 +14,24 @@ from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
 ''' Computes doc_ids that matches a Boolean query'''
 
+dictionary = {}
+
 def search():
+    stemmer = PorterStemmer()
     ''' TODO remove last newline'''
     global queries_file_q, dictionary_file_d, posting_file_p, output_file_o
+    with open(dictionary_file_d) as dicts:
+        for i, term in enumerate(dicts):
+            term = term.strip('\r\n').strip('\n')
+            # print(i, term)
+            dictionary[term] = i
     with open(queries_file_q) as queries:
         for query in queries:
-            print(query)
+            print (query)
+            query = stemmer.stem(query.strip('\r\n').strip('\n'))
+            print(dictionary[query])
+
+
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
