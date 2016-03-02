@@ -33,15 +33,16 @@ expressly vow that I have followed the Facebook rule in discussing
 with others in doing the assignment and did not take notes (digital or
 printed) from the discussions.  
 
-[x] I, A0112213E, did not follow the class rules regarding homework
+[] I, A0112213E, did not follow the class rules regarding homework
 assignment, because of the following reason:
+
+
+I suggest that I should be graded as follows:
 
 In my opinion, we should be allowed to produce the code that would produce 
 the best result with the resources given. Besides that, I believe the rules 
 are there so that we realise the limitation of certain techniques or methodology and 
 not to shackle the student from trying their best.
-
-I suggest that I should be graded as follows:
 
 I believe the accuracy of the code should not be used as a primary criteria to 
 grade this assignment as we are provided with limited training data and we are required
