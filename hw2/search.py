@@ -239,7 +239,7 @@ def search_expression(expression):
 def search():
     stemmer = PorterStemmer()
     ''' TODO remove last newline'''
-    global queries_file_q, dictionary_file_d, posting_file_p, output_file_o
+    global queries_file_q, dictionary_file_d, posting_file_p, output_file
     with open(dictionary_file_d) as dicts:
         for i, term in enumerate(dicts):
             term = term.strip('\r\n').strip('\n')
@@ -252,18 +252,18 @@ def search():
             result = search_expression(expression)
             print('result')
             print result
-            print('output file name: ' + output_file_o)
-            with open(output_file_o, "w") as o:
+            print('output file name: ' + output_file)
+            with open(output_file, "w") as o:
                 o.write(result + '\n')
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
     + " -o output-file-of-results")
 
-queries_file_i = dictionary_file_d = posting_file_p = output_file_o = None
+queries_file_i = dictionary_file_d = posting_file_p = output_file = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'd:p:q:o')
+    opts, args = getopt.getopt(sys.argv[1:], 'q:d:p:o:')
 except getopt.GetoptError, err:
     usage()
     sys.exit(2)
@@ -275,10 +275,10 @@ for o, a in opts:
     elif o == '-p':
         posting_file_p = a
     elif o == '-o':
-        output_file_o = a
+        output_file = a
     else:
         assert False, "unhandled option"
-if output_file_o == None or dictionary_file_d == None or posting_file_p == None or queries_file_q == None:
+if output_file == None or dictionary_file_d == None or posting_file_p == None or queries_file_q == None:
     usage()
     sys.exit(2)
 
