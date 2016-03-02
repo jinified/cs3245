@@ -18,102 +18,221 @@ from util import *
 
 dictionary = {}
 
+TOTAL_DOCUMENTS = 14818
+
 class Expression:
     """
     An expression is either a token, or the product of several expressions connected by operators
     In the latter case, number of expressions = number of operators + 1
-    hasnot indicates if there is a NOT operator in front of an expression
+    negated indicates if there is a NOT operator in front of an expression
     """
-    def __init__(self, expressions, operators, token, hasnot):
+    def __init__(self, expressions, operators, token, negated):
         self.expressions = expressions
         self.operators = operators
         self.token = token
-        self.frequency = 0
+        self.size = 0
         self.has_result = False
         self.result = []
-        self.hasnot = hasnot
+        self.negated = negated
 
     def __repr__(self):
-        return str(self.hasnot) + ' ' + \
+        return str(self.negated) + ' ' + \
         str(self.expressions) + ' ' + str(self.operators) + ' ' + str(self.token)
 
     @classmethod
-    def fromexpressions(cls, expressions, operators, hasnot):
-        return cls(expressions, operators, None, hasnot)
+    def fromexpressions(cls, expressions, operators, negated):
+        return cls(expressions, operators, None, negated)
 
     @classmethod
-    def fromtoken(cls, token, hasnot):
-        return cls(None, None, token, hasnot)
+    def fromtoken(cls, token, negated):
+        return cls(None, None, token, negated)      
 
-    @classmethod
-    def fromtoken(cls, token, hasnot):
-        return cls(None, None, token, hasnot)        
-
-def parse_query(query):
-    print ('parsing: ' + query)
+def parse_query(query, having_not_operator = False):
+    print('parsing: ' + query)
     elements = query.split();
     expressions = [];
     operators = [];
     # Parse tokens and operators as lists of expressions and strings of operators respectively
     # Merge elements within parentheses
     merging_parentheses = False
-    having_not_operator = False
     parentheses_content = ''
     # print elements
 
     for element in elements:
-        # print '   ' + element
         if merging_parentheses and element.endswith(')'):
-            parentheses_content += element.replace(')', '')
+            parentheses_content += normalize_token(element.replace(')', ''))
             # Recursively parse parentheses content
-            expressions.append(parse_query(parentheses_content))
+            expressions.append(parse_query(parentheses_content, having_not_operator))
             parentheses_content = ''
             having_not_operator = False
             merging_parentheses = False
-        elif merging_parentheses:
+        elif merging_parentheses and (element == 'AND' or element == 'OR'):
             parentheses_content += element + ' '
+        elif merging_parentheses:
+            parentheses_content += normalize_token(element) + ' '
         elif element == 'AND' or element == 'OR':
             operators.append(element)
         elif element == 'NOT':
             having_not_operator = True
         elif element.startswith('(') and not element.endswith(')'):
             merging_parentheses = True
-            parentheses_content = element.replace('(', '') + ' '
+            parentheses_content = normalize_token(element.replace('(', '')) + ' '
         else:
-            expressions.append(Expression.fromtoken(element, having_not_operator))
+            expressions.append(Expression.fromtoken(normalize_token(element), having_not_operator))
             having_not_operator = False
-        # print '\n'.join(str(p) for p in expressions)
 
-    return Expression.fromexpressions(expressions, operators, None)
+    return Expression.fromexpressions(expressions, operators, having_not_operator)
         # query = stemmer.stem(elements[x])
 
-def merge_expressions(expression):
-    '''
-    Performs merge on an expression with more than two child expressions, 
-    returns an expression with one less expression,
-    with the newly merged expression having the result and attribute has_result
-    '''
-    # Merge two child expressions within the expression
-    # The newly merged expression is considered to be searched and contains the result attribute
-    # Returns new expression
+def intersect_postings(res1, res2):
+    answer = []
+    counter1 = 0
+    counter2 = 0
+    while counter1 < len(res1) and counter2 < len(res2):
+        if res1[counter1] == res2[counter2]:
+            answer.append(res1[counter1])
+            counter1 += 1
+            counter2 += 1
+        elif res1[counter1] < res2[counter2]:
+            counter1 += 1
+        else:
+            counter2 += 1
+    return answer
 
+def union_postings(res1, res2):
+    answer = []
+    counter1 = 0
+    counter2 = 0
+    while counter1 < len(res1) and counter2 < len(res2):
+        if res1[counter1] == res2[counter2]:
+            answer.append(res1[counter1])
+            counter1 += 1
+            counter2 += 1
+        elif res1[counter1] < res2[counter2]:
+            answer.append(res1[counter1])
+            counter1 += 1
+        else:
+            answer.append(res2[counter2])
+            counter2 += 1
+    return answer
+
+def merge_postings(res1, res2, operator):
+    if operator == 'AND':
+        return intersect_postings(res1, res2)
+    elif operator == 'OR':
+        return union_postings(res1, res2)
+    else:
+        print('Invalid operator')
+        exit(-1)    
+
+def merge_expressions(expression1, expression2, operator):
+    '''
+    Performs merge on two child expressions, 
+    returns a lits of postings of docIDs of merging two expressions
+    '''
+    return merge_postings(search_expression(expression1), search_expression(expression2), operator)
+
+def get_naive_operator_order(operators):
+    '''returns the order of operators based on type of operator'''
+    orderAND = []
+    orderOR = []
+    for i, operator in enumerate(operators):
+        if operator == 'AND':
+            orderAND.append(i)
+        elif operator == 'OR':
+            orderOR.append(i)
+        else:
+            print('Invalid operator')
+            exit(-1)
+    return orderAND + orderOR
+
+def get_sized_operator_order(operators, sizes):
+    '''
+    Returns the order of operators based on type of operator and sizes of expressions
+    List of sizes always has 1 more element than operators
+    '''
+    orderAND = []
+    orderOR = []
+    for i, operator in enumerate(operators):
+        sizeEstimate = get_combined_size_estimate(sizes[i], sizes[i + 1], operator)
+        if operator == 'AND':
+            orderAND.append(i)
+        elif operator == 'OR':
+            orderOR.append(i)
+        else:
+            print('Invalid operator')
+            exit(-1)
+    sorted(orderAND, key=lambda i:sizes[i])
+    sorted(orderOR, key=lambda i:sizes[i])
+    return orderAND + orderOR
+
+def get_combined_size_estimate(first_size, second_size, operator):
+    '''returns the combined size of two expressions'''
+    if operator == 'AND':
+        return min(first_size, second_size)
+    elif operator == 'OR':
+        return first_size + second_size
+    else:
+        print('Invalid operator')
+        exit(-1)
+
+def get_size(expression):
+    '''returns the size of an expression'''
+    if expression.token is not None:
+        # Expression is token
+        if expression.token not in dictionary:
+            return 0
+        if expression.negated:
+            return TOTAL_DOCUMENTS - len(get_posting_list(dictionary[expression.token], posting_file_p))
+        else:
+            return len(get_posting_list(dictionary[expression.token], posting_file_p))
+    else:
+        size = 0
+        consumed_expressions_indices = []
+        order = get_naive_operator_order(expression.operators)
+        size = get_combined_size_estimate(get_size(expression.expressions[order[0]]), 
+                get_size(expression.expressions[order[0] + 1]), expression.operators[order[0]])
+        consumed_expressions_indices.append(order[0])
+        consumed_expressions_indices.append(order[0] + 1)
+        for i in order[1:]:
+            if i in consumed_expressions_indices:
+                # because operators AND and OR are left and right associative, we need to decide which
+                # expression to be combined
+                size = get_combined_size_estimate(size, get_size(expression.expressions[i + 1]),
+                    expression.operators[order[i]])
+                consumed_expressions_indices.append(i + 1)
+            else:
+                size = get_combined_size_estimate(size, get_size(expression.expressions[i]),
+                    expression.operators[order[i]])
+                consumed_expressions_indices.append(i)
+        return size
 
 def search_expression(expression):
-    '''Performs serach on an expression and returns the result of DocIDs as a list'''
-    print 'searching expression:'
-    print '\n'.join(str(p) for p in expression.expressions)
-    print expression.operators
-    print '---------'
-    if expression.token is not None
+    '''Performs serach on an expression and returns the postings of DocIDs as a list'''
+    print '----search-----'
+    if expression.token is not None:
         # Expression is token
-        return get_posting_list(expression.token, posting_file_p)
-    elif 
-    elif len(expression.expressions) > 1:
-        # Expression has multiple expressions, merge two of them
-        return search_expression(merge_expressions(expression))
-    elif len(expression.expressions) == 1:
-        # Expression has only one expression left
-        return search_expression(expression.expressions[0])
+        return get_posting_list(dictionary[expression.token], posting_file_p)
+    else:
+        sizes = [get_size(i) for i in expression.expressions]
+        search_order = get_sized_operator_order(expression.operators, sizes)
+        consumed_expressions_indices = []
+        postings = merge_expressions(expression.expressions[search_order[0]], 
+                expression.expressions[search_order[0] + 1], expression.operators[search_order[0]])
+        consumed_expressions_indices.append(search_order[0])
+        consumed_expressions_indices.append(search_order[0] + 1)
+        for i in search_order[1:]:
+            if i in consumed_expressions_indices:
+                # because operators AND and OR are left and right associative, we need to decide which
+                # expression to be combined
+                postings = merge_postings(postings, search_expression(expression.expressions[i + 1]), 
+                    expression.operators[search_order[i]])
+                consumed_expressions_indices.append(i + 1)
+            else:
+                postings = merge_postings(postings, expression.expressions[i],
+                    expression.operators[search_order[i]])
+                consumed_expressions_indices.append(i)
+        return postings
     # print(dictionary[query])
     # print(get_posting_list(dictionary[query], posting_file_p))
 
@@ -128,9 +247,14 @@ def search():
             dictionary[term] = i
     with open(queries_file_q) as queries:
         for query in queries:
+            print('==============')
             expression = parse_query(query.strip('\r\n').strip('\n'))
             result = search_expression(expression)
+            print('result')
             print result
+            print('output file name: ' + output_file_o)
+            with open(output_file_o, "w") as o:
+                o.write(result + '\n')
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
