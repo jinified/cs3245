@@ -12,6 +12,8 @@ from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
+from util import *
+
 ''' Computes doc_ids that matches a Boolean query'''
 
 dictionary = {}
@@ -30,6 +32,7 @@ def search():
             print (query)
             query = stemmer.stem(query.strip('\r\n').strip('\n'))
             print(dictionary[query])
+            print(get_posting_list(dictionary[query], posting_file_p))
 
 
     
