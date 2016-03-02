@@ -20,7 +20,7 @@ dictionary = {}
 
 class Expression:
     """
-    An expression is either a token or the product of several expressions connected by operators
+    An expression is either a token, or the product of several expressions connected by operators
     In the latter case, number of expressions = number of operators + 1
     hasnot indicates if there is a NOT operator in front of an expression
     """
@@ -28,7 +28,9 @@ class Expression:
         self.expressions = expressions
         self.operators = operators
         self.token = token
-        self.result = 0
+        self.frequency = 0
+        self.has_result = False
+        self.result = []
         self.hasnot = hasnot
 
     def __repr__(self):
@@ -42,6 +44,10 @@ class Expression:
     @classmethod
     def fromtoken(cls, token, hasnot):
         return cls(None, None, token, hasnot)
+
+    @classmethod
+    def fromtoken(cls, token, hasnot):
+        return cls(None, None, token, hasnot)        
 
 def parse_query(query):
     print ('parsing: ' + query)
@@ -81,12 +87,33 @@ def parse_query(query):
     return Expression.fromexpressions(expressions, operators, None)
         # query = stemmer.stem(elements[x])
 
+def merge_expressions(expression):
+    '''
+    Performs merge on an expression with more than two child expressions, 
+    returns an expression with one less expression,
+    with the newly merged expression having the result and attribute has_result
+    '''
+    # Merge two child expressions within the expression
+    # The newly merged expression is considered to be searched and contains the result attribute
+    # Returns new expression
 
-def execute_query(parsed_query):
-    print 'parse result:'
-    print '\n'.join(str(p) for p in parsed_query.expressions)
-    print parsed_query.operators
+
+def search_expression(expression):
+    '''Performs serach on an expression and returns the result of DocIDs as a list'''
+    print 'searching expression:'
+    print '\n'.join(str(p) for p in expression.expressions)
+    print expression.operators
     print '---------'
+    if expression.token is not None
+        # Expression is token
+        return get_posting_list(expression.token, posting_file_p)
+    elif 
+    elif len(expression.expressions) > 1:
+        # Expression has multiple expressions, merge two of them
+        return search_expression(merge_expressions(expression))
+    elif len(expression.expressions) == 1:
+        # Expression has only one expression left
+        return search_expression(expression.expressions[0])
     # print(dictionary[query])
     # print(get_posting_list(dictionary[query], posting_file_p))
 
@@ -101,7 +128,9 @@ def search():
             dictionary[term] = i
     with open(queries_file_q) as queries:
         for query in queries:
-            execute_query(parse_query(query.strip('\r\n').strip('\n')))
+            expression = parse_query(query.strip('\r\n').strip('\n'))
+            result = search_expression(expression)
+            print result
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
