@@ -38,7 +38,7 @@ def index():
     with open(dictionary_file_d, "w") as d, open(posting_file_p, "w") as p:
         print("Writing to files")
         for k, v in word_dict.items():
-            d.write(k + "\n")
+            d.write("{} {}\n".format(k, len(v)))
             p.write(",".join(v) + "\n")
     
 def usage():
