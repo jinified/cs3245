@@ -1,4 +1,8 @@
-bill
-bill
-apple
-banana
+bill AND apple
+bill OR apple
+bill AND NOT apple
+canada AND (bill OR apple)
+canada AND NOT (bill AND apple)
+canada AND (bill OR apple) OR (city OR bank)
+canada AND (bill OR apple) OR ring OR (city OR bank)
+canada AND (bill OR apple) OR ring OR NOT (city OR bank)

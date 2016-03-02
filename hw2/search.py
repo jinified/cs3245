@@ -18,6 +18,78 @@ from util import *
 
 dictionary = {}
 
+class Expression:
+    """
+    An expression is either a token or the product of several expressions connected by operators
+    In the latter case, number of expressions = number of operators + 1
+    hasnot indicates if there is a NOT operator in front of an expression
+    """
+    def __init__(self, expressions, operators, token, hasnot):
+        self.expressions = expressions
+        self.operators = operators
+        self.token = token
+        self.result = 0
+        self.hasnot = hasnot
+
+    def __repr__(self):
+        return str(self.hasnot) + ' ' + \
+        str(self.expressions) + ' ' + str(self.operators) + ' ' + str(self.token)
+
+    @classmethod
+    def fromexpressions(cls, expressions, operators, hasnot):
+        return cls(expressions, operators, None, hasnot)
+
+    @classmethod
+    def fromtoken(cls, token, hasnot):
+        return cls(None, None, token, hasnot)
+
+def parse_query(query):
+    print ('parsing: ' + query)
+    elements = query.split();
+    expressions = [];
+    operators = [];
+    # Parse tokens and operators as lists of expressions and strings of operators respectively
+    # Merge elements within parentheses
+    merging_parentheses = False
+    having_not_operator = False
+    parentheses_content = ''
+    # print elements
+
+    for element in elements:
+        # print '   ' + element
+        if merging_parentheses and element.endswith(')'):
+            parentheses_content += element.replace(')', '')
+            # Recursively parse parentheses content
+            expressions.append(parse_query(parentheses_content))
+            parentheses_content = ''
+            having_not_operator = False
+            merging_parentheses = False
+        elif merging_parentheses:
+            parentheses_content += element + ' '
+        elif element == 'AND' or element == 'OR':
+            operators.append(element)
+        elif element == 'NOT':
+            having_not_operator = True
+        elif element.startswith('(') and not element.endswith(')'):
+            merging_parentheses = True
+            parentheses_content = element.replace('(', '') + ' '
+        else:
+            expressions.append(Expression.fromtoken(element, having_not_operator))
+            having_not_operator = False
+        # print '\n'.join(str(p) for p in expressions)
+
+    return Expression.fromexpressions(expressions, operators, None)
+        # query = stemmer.stem(elements[x])
+
+
+def execute_query(parsed_query):
+    print 'parse result:'
+    print '\n'.join(str(p) for p in parsed_query.expressions)
+    print parsed_query.operators
+    print '---------'
+    # print(dictionary[query])
+    # print(get_posting_list(dictionary[query], posting_file_p))
+
 def search():
     stemmer = PorterStemmer()
     ''' TODO remove last newline'''
@@ -29,12 +101,7 @@ def search():
             dictionary[term] = i
     with open(queries_file_q) as queries:
         for query in queries:
-            print (query)
-            query = stemmer.stem(query.strip('\r\n').strip('\n'))
-            print(dictionary[query])
-            print(get_posting_list(dictionary[query], posting_file_p))
-
-
+            execute_query(parse_query(query.strip('\r\n').strip('\n')))
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
