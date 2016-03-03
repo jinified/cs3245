@@ -138,10 +138,12 @@ def union_postings(res1, res2):
             answer.append(str(docID2))
             counter2 += 1
     while counter1 < len(res1):
-        answer.append(str(docID1))
+        if str(docID1) not in answer:
+            answer.append(str(docID1))
         counter1 += 1
     while counter2 < len(res2):
-        answer.append(str(docID2))
+        if str(docID2) not in answer:
+            answer.append(str(docID2))
         counter2 += 1
     # Re-calculate skip pointers
     answer = generate_skiplist(answer)
@@ -308,6 +310,7 @@ def search():
 
     with open(output_file, "w") as o:
         o.write('\n'.join(results))
+        o.write('\n')
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
