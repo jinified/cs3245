@@ -18,7 +18,8 @@ def get_doc_ids(filedir):
     return sorted(os.listdir(filedir), key=lambda x: int(x))
 
 def normalize_token(token):
-    return stemmer.stem(token.lower())
+    # Converts unicode string to regular string
+    return str(stemmer.stem(token.lower()))
 
 ''' Input/Output '''
 
@@ -46,6 +47,11 @@ def generate_skiplist(posting_list):
     skip_length = get_skiplength(posting_list)
     return [(i, get_next_pointer(index, skip_length, posting_list)) 
         for index, i in enumerate(posting_list)]
+
+def posting_from_skip_list(skip_list):
+    return [i[0] for i in skip_list]
+
+''' Posting list '''
 
 def get_posting_list(index, filepath):
     '''Retrieves a posting list given a file handle'''

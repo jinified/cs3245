@@ -183,9 +183,9 @@ def get_size(expression):
         if expression.token not in dictionary:
             return 0
         if expression.negated:
-            return TOTAL_DOCUMENTS - len(get_posting_list(dictionary[expression.token], posting_file_p))
+            return TOTAL_DOCUMENTS - len(get_posting_list(dictionary[expression.token][0], posting_file_p))
         else:
-            return len(get_posting_list(dictionary[expression.token], posting_file_p))
+            return len(get_posting_list(dictionary[expression.token][0], posting_file_p))
     else:
         size = 0
         consumed_expressions_indices = []
@@ -212,7 +212,7 @@ def search_expression(expression):
     print '----search-----'
     if expression.token is not None:
         # Expression is token
-        return get_posting_list(dictionary[expression.token], posting_file_p)
+        return get_posting_list(dictionary[expression.token][0], posting_file_p)
     else:
         sizes = [get_size(i) for i in expression.expressions]
         search_order = get_sized_operator_order(expression.operators, sizes)
@@ -238,23 +238,27 @@ def search_expression(expression):
 
 def search():
     stemmer = PorterStemmer()
-    ''' TODO remove last newline'''
     global queries_file_q, dictionary_file_d, posting_file_p, output_file
+
+    # List of posting_list in string format
+    results = []
     with open(dictionary_file_d) as dicts:
         for i, term in enumerate(dicts):
-            term = term.strip('\r\n').strip('\n')
-            # print(i, term)
-            dictionary[term] = i
+            term, freq = term.strip('\r\n').strip('\n').split(' ')
+            dictionary[term] = (i, freq)
+
     with open(queries_file_q) as queries:
         for query in queries:
             print('==============')
             expression = parse_query(query.strip('\r\n').strip('\n'))
-            result = search_expression(expression)
+            result = posting_from_skip_list(search_expression(expression))
+            results.append(",".join(result))
             print('result')
-            print result
-            print('output file name: ' + output_file)
-            with open(output_file, "w") as o:
-                o.write(result + '\n')
+            print(result)
+
+    with open(output_file, "w") as o:
+        print('output file name: ' + output_file)
+        o.write('\n'.join(results))
     
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p posting-file -q file-of-queries"
