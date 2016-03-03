@@ -252,8 +252,6 @@ def get_negated_posting(token):
 
 def search_expression(expression):
     '''Performs serach on an expression and returns the postings of DocIDs as a list'''
-    print('search_expression')
-    print(expression)
     if expression.token is not None:
         # Expression is token
         if expression.negated:

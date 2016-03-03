@@ -1,7 +1,6 @@
 NOT bill
-NOT NOT bill
 NOT bill AND NOT bill
-NOT NOT money AND NOT bill
+NOT money AND NOT bill
 NOT money AND NOT bill AND NOT stock
 NOT money AND NOT bill AND NOT stock AND NOT market
 NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply
