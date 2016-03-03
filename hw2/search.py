@@ -89,11 +89,13 @@ def intersect_postings(res1, res2):
     counter1 = 0
     counter2 = 0
     while counter1 < len(res1) and counter2 < len(res2):
-        if res1[counter1] == res2[counter2]:
+        docID1 = int(res1[counter1][0])
+        docID2 = int(res2[counter2][0])
+        if docID1 == docID2:
             answer.append(res1[counter1])
             counter1 += 1
             counter2 += 1
-        elif res1[counter1] < res2[counter2]:
+        elif docID1 < docID2:
             counter1 += 1
         else:
             counter2 += 1
@@ -104,11 +106,13 @@ def union_postings(res1, res2):
     counter1 = 0
     counter2 = 0
     while counter1 < len(res1) and counter2 < len(res2):
-        if res1[counter1] == res2[counter2]:
+        docID1 = int(res1[counter1][0])
+        docID2 = int(res2[counter2][0])
+        if docID1 == docID2:
             answer.append(res1[counter1])
             counter1 += 1
             counter2 += 1
-        elif res1[counter1] < res2[counter2]:
+        elif docID1 < docID2:
             answer.append(res1[counter1])
             counter1 += 1
         else:
@@ -213,6 +217,8 @@ def search_expression(expression):
     if expression.token is not None:
         # Expression is token
         return get_posting_list(dictionary[expression.token][0], posting_file_p)
+    elif len(expression.expressions) == 1:
+        return search_expression(expression.expressions[0])
     else:
         sizes = [get_size(i) for i in expression.expressions]
         search_order = get_sized_operator_order(expression.operators, sizes)
@@ -244,20 +250,21 @@ def search():
     results = []
     with open(dictionary_file_d) as dicts:
         for i, term in enumerate(dicts):
-            term, freq = term.strip('\r\n').strip('\n').split(' ')
-            dictionary[term] = (i, freq)
+            # term, freq = term.strip('\r\n').strip('\n').split(' ')
+            # dictionary[term] = (i, freq)
+            term = term.strip('\r\n').strip('\n')
+            dictionary[term] = (i + 1, 1)
 
     with open(queries_file_q) as queries:
         for query in queries:
             print('==============')
             expression = parse_query(query.strip('\r\n').strip('\n'))
             result = posting_from_skip_list(search_expression(expression))
-            results.append(",".join(result))
+            results.append(" ".join(result))
             print('result')
             print(result)
 
     with open(output_file, "w") as o:
-        print('output file name: ' + output_file)
         o.write('\n'.join(results))
     
 def usage():
