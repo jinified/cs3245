@@ -51,7 +51,7 @@ class Expression:
     def fromtoken(cls, token, negated):
         return cls(None, None, token, negated)      
 
-def parse_query(query, having_not_operator = False):
+def parse_query(query, is_query_negated = False):
     print('parsing: ' + query)
     elements = query.split();
     expressions = [];
@@ -59,6 +59,7 @@ def parse_query(query, having_not_operator = False):
     # Parse tokens and operators as lists of expressions and strings of operators respectively
     # Merge elements within parentheses
     merging_parentheses = False
+    having_not_operator = False
     parentheses_content = ''
     # print elements
 
@@ -85,10 +86,12 @@ def parse_query(query, having_not_operator = False):
             expressions.append(Expression.fromtoken(normalize_token(element), having_not_operator))
             having_not_operator = False
 
-    return Expression.fromexpressions(expressions, operators, having_not_operator)
+    return Expression.fromexpressions(expressions, operators, is_query_negated)
         # query = stemmer.stem(elements[x])
 
 def intersect_postings(res1, res2):
+    # print(res1)
+    # print(res2)
     answer = []
     counter1 = 0
     counter2 = 0
@@ -96,25 +99,25 @@ def intersect_postings(res1, res2):
         docID1 = int(res1[counter1][0])
         docID2 = int(res2[counter2][0])
         if docID1 == docID2:
-            answer.append(res1[counter1])
+            answer.append(str(docID1))
             counter1 += 1
             counter2 += 1
         elif docID1 < docID2:
-            # skip_pointer = int(res1[counter1][1])
-            # if (not skip_pointer == -1) and (int(res1[skip_pointer][0]) < docID2):
-            #     # print('skip 1')
-            #     counter1 = skip_pointer
-            # else:
-            counter1 += 1
+            skip_pointer = int(res1[counter1][1])
+            if (not skip_pointer == -1) and (int(res1[skip_pointer][0]) < docID2):
+                # print('skip 1')
+                counter1 = skip_pointer
+            else:
+                counter1 += 1
         else:
-            # skip_pointer = int(res2[counter2][1])
-            # if (not skip_pointer == -1) and (int(res2[skip_pointer][0]) < docID1):
-            #     # print('skip 2')
-            #     counter2 = skip_pointer
-            # else:
-            counter2 += 1
+            skip_pointer = int(res2[counter2][1])
+            if (not skip_pointer == -1) and (int(res2[skip_pointer][0]) < docID1):
+                # print('skip 2')
+                counter2 = skip_pointer
+            else:
+                counter2 += 1
     # Re-calculate skip pointers
-    answer = generate_skiplist(posting_from_skip_list(answer))
+    answer = generate_skiplist(answer)
     return answer
 
 def union_postings(res1, res2):
@@ -125,21 +128,23 @@ def union_postings(res1, res2):
         docID1 = int(res1[counter1][0])
         docID2 = int(res2[counter2][0])
         if docID1 == docID2:
-            answer.append(res1[counter1])
+            answer.append(str(docID1))
             counter1 += 1
             counter2 += 1
         elif docID1 < docID2:
-            answer.append(res1[counter1])
+            answer.append(str(docID1))
             counter1 += 1
         else:
-            answer.append(res2[counter2])
+            answer.append(str(docID2))
             counter2 += 1
     while counter1 < len(res1):
-        answer.append(res1[counter1])
+        answer.append(str(docID1))
         counter1 += 1
     while counter2 < len(res2):
-        answer.append(res2[counter2])
+        answer.append(str(docID2))
         counter2 += 1
+    # Re-calculate skip pointers
+    answer = generate_skiplist(answer)
     return answer
 
 def merge_postings(res1, res2, operator):
@@ -233,17 +238,22 @@ def get_size(expression):
                 consumed_expressions_indices.append(i)
         return size
 
-def get_negated_posting(token):
+def negate_posting(posting):
     # All postings of entire docIDs is stored at the end of postings file
     # TODO: Optimize this very inefficient way of converting between postings and skip lists
     all_postings = posting_from_skip_list(get_posting_list(len(dictionary) + 1, posting_file_p))
-    present_postings = posting_from_skip_list(get_posting_list(token, posting_file_p))
     # Remove duplicates
-    present_postings = list(OrderedDict.fromkeys(present_postings))
-    return generate_skiplist([x for x in all_postings if x not in present_postings])
+    posting = list(OrderedDict.fromkeys(posting))
+    return generate_skiplist([x for x in all_postings if x not in posting])
+
+def get_negated_posting(token):
+    present_postings = posting_from_skip_list(get_posting_list(token, posting_file_p))
+    return negate_posting(present_postings)
 
 def search_expression(expression):
     '''Performs serach on an expression and returns the postings of DocIDs as a list'''
+    print('search_expression')
+    print(expression)
     if expression.token is not None:
         # Expression is token
         if expression.negated:
@@ -271,7 +281,10 @@ def search_expression(expression):
                 postings = merge_postings(postings, expression.expressions[i],
                     expression.operators[search_order[i]])
                 consumed_expressions_indices.append(i)
-        return postings
+        if expression.negated:
+            return negate_posting(posting_from_skip_list(postings))
+        else:
+            return postings
     # print(dictionary[query])
     # print(get_posting_list(dictionary[query], posting_file_p))
 
@@ -297,7 +310,7 @@ def search():
             result = list(OrderedDict.fromkeys(result))
             results.append(" ".join(result))
             print('result')
-            print(result)
+            print(" ".join(result))
 
     with open(output_file, "w") as o:
         o.write('\n'.join(results))
