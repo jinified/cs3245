@@ -267,6 +267,8 @@ def search():
             print('==============')
             expression = parse_query(query.strip('\r\n').strip('\n'))
             result = posting_from_skip_list(search_expression(expression))
+            # Remove dulplicates
+            result = list(OrderedDict.fromkeys(result))
             results.append(" ".join(result))
             print('result')
             print(result)
