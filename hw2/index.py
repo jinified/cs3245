@@ -5,8 +5,7 @@ import sys
 import getopt
 import glob
 import math
-from collections import defaultdict
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 
 from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
@@ -25,7 +24,7 @@ def generate_word_dict(filedir):
     word_dict = defaultdict(list)
     print("Generating Word Dict")
     for i in doc_ids:
-        words = [normalize_token(j) for j in set(corpus.words(i))]
+        words = set([normalize_token(j) for j in corpus.words(i)])
         
         for word in words:
             word_dict[word].append(i)

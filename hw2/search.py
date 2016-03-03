@@ -242,8 +242,6 @@ def negate_posting(posting):
     # All postings of entire docIDs is stored at the end of postings file
     # TODO: Optimize this very inefficient way of converting between postings and skip lists
     all_postings = posting_from_skip_list(get_posting_list(len(dictionary) + 1, posting_file_p))
-    # Remove duplicates
-    posting = list(OrderedDict.fromkeys(posting))
     return generate_skiplist([x for x in all_postings if x not in posting])
 
 def get_negated_posting(token):
@@ -304,8 +302,6 @@ def search():
             print('==============')
             expression = parse_query(query.strip('\r\n').strip('\n'))
             result = posting_from_skip_list(search_expression(expression))
-            # Remove dulplicates
-            result = list(OrderedDict.fromkeys(result))
             results.append(" ".join(result))
             print('result')
             print(" ".join(result))

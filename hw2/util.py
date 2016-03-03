@@ -40,8 +40,8 @@ def get_next_pointer(index, skip_length, posting_list):
     ''' Returns -1 if exceeds length of posting_list'''
     next_index = index + skip_length
     if index % skip_length == 0 and next_index < len(posting_list):
-        return str(next_index)
-    return '-1'
+        return next_index
+    return -1
 
 def generate_skiplist(posting_list):
     skip_length = get_skiplength(posting_list)
