@@ -4,6 +4,7 @@ import sys
 import getopt
 import glob
 import math
+import time
 
 from collections import defaultdict
 from collections import OrderedDict
@@ -15,6 +16,7 @@ from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 from util import *
 
 ''' Computes doc_ids that matches a Boolean query'''
+start_time = time.time()
 
 dictionary = {}
 
@@ -294,3 +296,4 @@ if output_file == None or dictionary_file_d == None or posting_file_p == None or
 
 if __name__ == "__main__":
     search()
+    print("--- %s seconds ---" % (time.time() - start_time))
