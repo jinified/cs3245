@@ -103,14 +103,14 @@ def intersect_postings(res1, res2):
             counter1 += 1
             counter2 += 1
         elif docID1 < docID2:
-            skip_pointer = int(res1[counter1][1])
+            skip_pointer = res1[counter1][1]
             if (not skip_pointer == -1) and (int(res1[skip_pointer][0]) < docID2):
                 # print('skip 1')
                 counter1 = skip_pointer
             else:
                 counter1 += 1
         else:
-            skip_pointer = int(res2[counter2][1])
+            skip_pointer = res2[counter2][1]
             if (not skip_pointer == -1) and (int(res2[skip_pointer][0]) < docID1):
                 # print('skip 2')
                 counter2 = skip_pointer
