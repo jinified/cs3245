@@ -138,14 +138,15 @@ def union_postings(res1, res2):
             answer.append(str(docID2))
             counter2 += 1
     while counter1 < len(res1):
-        if str(docID1) not in answer:
-            answer.append(str(docID1))
+        if res1[counter1][0] not in answer:
+            answer.append(res1[counter1][0])
         counter1 += 1
     while counter2 < len(res2):
-        if str(docID2) not in answer:
-            answer.append(str(docID2))
+        if res2[counter2][0] not in answer:
+            answer.append(res2[counter2][0])
         counter2 += 1
     # Re-calculate skip pointers
+    print(answer)
     answer = generate_skiplist(answer)
     return answer
 
