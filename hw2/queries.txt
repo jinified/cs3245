@@ -2,3 +2,11 @@ bill
 money
 bill AND money
 bill OR money
+city
+city AND bank
+bill AND money AND (city OR bank)
+bill AND money AND (city AND bank)
+bill AND money AND city
+bill AND money AND country
+bill AND money AND (city OR country)
+bill AND money AND (city AND country)

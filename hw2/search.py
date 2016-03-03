@@ -213,7 +213,6 @@ def get_size(expression):
 
 def search_expression(expression):
     '''Performs serach on an expression and returns the postings of DocIDs as a list'''
-    print '----search-----'
     if expression.token is not None:
         # Expression is token
         return get_posting_list(dictionary[expression.token][0], posting_file_p)
