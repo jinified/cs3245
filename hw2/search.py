@@ -20,7 +20,9 @@ start_time = time.time()
 
 dictionary = {}
 
-TOTAL_DOCUMENTS = 14818
+# 14818 is not accurate as some documents were skipped in the training set
+# TOTAL_DOCUMENTS = 14818
+TOTAL_DOCUMENTS = 7769
 
 class Expression:
     """
@@ -195,9 +197,9 @@ def get_size(expression):
         if expression.token not in dictionary:
             return 0
         if expression.negated:
-            return TOTAL_DOCUMENTS - len(get_posting_list(dictionary[expression.token][0], posting_file_p))
+            return TOTAL_DOCUMENTS - int(dictionary[expression.token][1])
         else:
-            return len(get_posting_list(dictionary[expression.token][0], posting_file_p))
+            return int(dictionary[expression.token][1])
     else:
         size = 0
         consumed_expressions_indices = []
@@ -219,11 +221,23 @@ def get_size(expression):
                 consumed_expressions_indices.append(i)
         return size
 
+def get_negated_posting(token):
+    # All postings of entire docIDs is stored at the end of postings file
+    # TODO: Optimize this very inefficient way of converting between postings and skip lists
+    all_postings = posting_from_skip_list(get_posting_list(len(dictionary) + 1, posting_file_p))
+    present_postings = posting_from_skip_list(get_posting_list(token, posting_file_p))
+    # Remove duplicates
+    present_postings = list(OrderedDict.fromkeys(present_postings))
+    return generate_skiplist([x for x in all_postings if x not in present_postings])
+
 def search_expression(expression):
     '''Performs serach on an expression and returns the postings of DocIDs as a list'''
     if expression.token is not None:
         # Expression is token
-        return get_posting_list(dictionary[expression.token][0], posting_file_p)
+        if expression.negated:
+            return get_negated_posting(dictionary[expression.token][0])
+        else:
+            return get_posting_list(dictionary[expression.token][0], posting_file_p)
     elif len(expression.expressions) == 1:
         return search_expression(expression.expressions[0])
     else:

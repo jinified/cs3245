@@ -40,6 +40,8 @@ def index():
         for k, v in word_dict.items():
             d.write("{} {}\n".format(k, len(v)))
             p.write(",".join(v) + "\n")
+        # Write the entire docID to the end of postings file
+        p.write(",".join(get_doc_ids(input_file_i)) + "\n")
     
 def usage():
     print "usage: " + sys.argv[0] + " -i training-input-file -d output-dictionary-file -p output-posting-file"
