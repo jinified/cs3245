@@ -1,0 +1,15 @@
+NOT bill
+NOT NOT bill
+NOT bill AND NOT bill
+NOT NOT money AND NOT bill
+NOT money AND NOT bill AND NOT stock
+NOT money AND NOT bill AND NOT stock AND NOT market
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust AND NOT exchange
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust AND NOT exchange AND NOT business
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust AND NOT exchange AND NOT business AND NOT finance
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust AND NOT exchange AND NOT business AND NOT finance AND NOT rate
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust AND NOT exchange AND NOT business AND NOT finance AND NOT rate AND NOT capital
+NOT money AND NOT bill AND NOT stock AND NOT market AND NOT supply AND NOT bank AND NOT trust AND NOT exchange AND NOT business AND NOT finance AND NOT rate AND NOT capital AND NOT economy
