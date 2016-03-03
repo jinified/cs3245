@@ -257,10 +257,10 @@ def search():
     results = []
     with open(dictionary_file_d) as dicts:
         for i, term in enumerate(dicts):
-            # term, freq = term.strip('\r\n').strip('\n').split(' ')
-            # dictionary[term] = (i, freq)
-            term = term.strip('\r\n').strip('\n')
-            dictionary[term] = (i + 1, 1)
+            term, freq = term.strip('\r\n').strip('\n').split(' ')
+            dictionary[term] = (i + 1, freq)
+            # term = term.strip('\r\n').strip('\n')
+            # dictionary[term] = (i + 1, 1)
 
     with open(queries_file_q) as queries:
         for query in queries:
