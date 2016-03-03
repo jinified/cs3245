@@ -120,6 +120,12 @@ def union_postings(res1, res2):
         else:
             answer.append(res2[counter2])
             counter2 += 1
+    while counter1 < len(res1):
+        answer.append(res1[counter1])
+        counter1 += 1
+    while counter2 < len(res2):
+        answer.append(res2[counter2])
+        counter2 += 1
     return answer
 
 def merge_postings(res1, res2, operator):

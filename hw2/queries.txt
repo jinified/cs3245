@@ -1,3 +1,7 @@
+apple
+city
+apple OR city
+city OR apple
 bill
 money
 bill AND money
@@ -10,3 +14,5 @@ bill AND money AND city
 bill AND money AND country
 bill AND money AND (city OR country)
 bill AND money AND (city AND country)
+stock AND company
+bill AND money AND (city OR country) OR (stock AND company)
