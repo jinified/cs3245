@@ -71,7 +71,7 @@ def parse_query(query, is_query_negated = False):
             parentheses_content = ''
             having_not_operator = False
             merging_parentheses = False
-        elif merging_parentheses and (element == 'AND' or element == 'OR'):
+        elif merging_parentheses and (element == 'AND' or element == 'OR' or element == 'NOT'):
             parentheses_content += element + ' '
         elif merging_parentheses:
             parentheses_content += normalize_token(element) + ' '
@@ -81,7 +81,10 @@ def parse_query(query, is_query_negated = False):
             having_not_operator = True
         elif element.startswith('(') and not element.endswith(')'):
             merging_parentheses = True
-            parentheses_content = normalize_token(element.replace('(', '')) + ' '
+            if element.replace('(', '') == 'NOT':
+                parentheses_content = 'NOT' + ' '
+            else:
+                parentheses_content = normalize_token(element.replace('(', '')) + ' '
         else:
             expressions.append(Expression.fromtoken(normalize_token(element), having_not_operator))
             having_not_operator = False

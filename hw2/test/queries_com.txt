@@ -9,3 +9,8 @@ apple
 bank AND city OR weather AND company OR local AND store OR apple
 green
 bank AND city OR weather AND company OR local AND store OR apple OR green
+kill
+bull
+stock
+NOT stock AND bull
+kill OR (NOT stock AND bull)
