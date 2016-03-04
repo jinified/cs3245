@@ -17,6 +17,7 @@ After removing term that consists of partial numbers:
 	reduction in space ~ 11.35 %
 
 Question 2:
+
 Both the dictionary and postings file will have fewer entries and take up less space.
 However, there will not be significant speed improvement for searching.
 Find the index of the term in dictionary still takes constant time and getting the postings list from the disk still takes up the same constant disk seek time for all the remaining terms.
