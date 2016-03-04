@@ -1,7 +1,7 @@
-This is the README file for (A0112213E - )'s submission
+This is the README file for (A0112213E-A0093910H)'s submission
 
 == Personal Information ==
-Matric No: A0112213E
+Matric No: A0112213E-A0093910H
 Email: a0112213@u.nus.edu
 
 == General Notes about this assignment ==
@@ -25,16 +25,16 @@ ordereddict.py	 - OrderedDict's implemenation by Raymond Hettinger for python ve
 
 Please initial one of the following statements.
 
-[x] I, A0112213E, certify that I have followed the CS 3245 Information
-Retrieval class guidelines for homework assignments.  In particular, I
-expressly vow that I have followed the Facebook rule in discussing
+[x] We, A0112213E-A0093910H, certify that we have followed the CS 3245 Information
+Retrieval class guidelines for homework assignments.  In particular, We
+expressly vow that We have followed the Facebook rule in discussing
 with others in doing the assignment and did not take notes (digital or
 printed) from the discussions.  
 
-[] I, A0112213E, did not follow the class rules regarding homework
+[] We, A0112213E-A0093910H, did not follow the class rules regarding homework
 assignment, because of the following reason:
 
-I suggest that I should be graded as follows:
+We suggest that We should be graded as follows:
 
 == References ==
 
