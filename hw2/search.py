@@ -7,7 +7,6 @@ import math
 import time
 
 from collections import defaultdict
-from collections import OrderedDict
 
 from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
