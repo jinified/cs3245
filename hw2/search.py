@@ -34,8 +34,6 @@ class Expression:
         self.expressions = expressions
         self.operators = operators
         self.token = token
-        self.size = 0
-        self.has_result = False
         self.result = []
         self.negated = negated
 
@@ -343,6 +341,10 @@ def search_expression(expression):
     # print(get_posting_list(dictionary[query], posting_file_p))
 
 def merge_isolated_expressions(i, search_order, expression, consumed_expressions_indices):
+    '''
+    merge isolated expressions that does not appear next to each other in the query 
+    but follows each other in search order
+    '''
     # print('isolated operator index ' + str(search_order[i]) + ' ' + str(search_order[i] + 1))
     isolated_expression = merge_postings(search_expression(expression.expressions[search_order[i]]), 
             search_expression(expression.expressions[search_order[i] + 1]), 
@@ -353,6 +355,7 @@ def merge_isolated_expressions(i, search_order, expression, consumed_expressions
         # next expression is no longer isolated
         return isolated_expression, i, consumed_expressions_indices
     else:
+        # otherwise recursively merge isolated expressions until we find non-isolated expression
         # print('nested isolated expression')
         nested_isolated_expression, new_i, consumed_expressions_indices = merge_isolated_expressions(i + 1, 
             search_order, expression, consumed_expressions_indices)
@@ -362,6 +365,7 @@ def merge_isolated_expressions(i, search_order, expression, consumed_expressions
             expression.operators[search_order[new_i + 1]]), new_i, consumed_expressions_indices
 
 def get_isolated_merge_operator(last_used_operator, remaining_operators, consumed_expressions_indices):
+    '''get the correct merge operator for isolated expressions'''
     # print('get_isolated_merge_operator')
     # print(last_used_operator)
     # print(remaining_operators)
