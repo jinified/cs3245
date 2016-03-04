@@ -191,9 +191,6 @@ def get_sized_operator_order(operators, sizes):
     sizeEstimates = []
     for i, operator in enumerate(operators):
         sizeEstimate = get_combined_size_estimate(sizes[i], sizes[i + 1], operator)
-        # print('sizeEstimate')
-        # print(sizeEstimate)
-        # print(operator)
         if operator == 'AND':
             orderAND.append(i)
             sizeEstimates.append(sizeEstimate)
@@ -203,20 +200,8 @@ def get_sized_operator_order(operators, sizes):
         else:
             print('Invalid operator')
             exit(-1)
-    # print('sizeEstimates')
-    # print(sizeEstimates)
-    # print('orderAND')
-    # print(orderAND)
-    # print('orderOR')
-    # print(orderOR)
-    # sorted(orderAND, key=lambda i:sizeEstimates[i])
     orderAND = [x for (y, x) in sorted(zip(sizeEstimates,orderAND))]
-    # sorted(orderOR, key=lambda i:sizeEstimates[i])
     orderOR = [x for (y, x) in sorted(zip(sizeEstimates,orderOR))]
-    # print('orderAND')
-    # print(orderAND)
-    # print('orderOR')
-    # print(orderOR)
     return orderAND + orderOR
 
 def get_combined_size_estimate(first_size, second_size, operator):
@@ -291,8 +276,6 @@ def search_expression(expression):
     else:
         sizes = [get_size(i) for i in expression.expressions]
         search_order = get_sized_operator_order(expression.operators, sizes)
-        # print('sizes')
-        # print(sizes)
         print('search_order')
         print(search_order)
         consumed_expressions_indices = []
@@ -311,48 +294,36 @@ def search_expression(expression):
             elif (index + 1) in consumed_expressions_indices:
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
-                # print('merging')
-                # print(expression.expressions[index])
                 postings = merge_postings(postings, search_expression(expression.expressions[index]), 
                     expression.operators[index])
                 consumed_expressions_indices.append(index)
             elif index in consumed_expressions_indices:
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
-                # print('merging')
-                # print(expression.expressions[index])
                 postings = merge_postings(postings, search_expression(expression.expressions[index + 1]), 
                     expression.operators[index])
                 consumed_expressions_indices.append(index + 1)
             else:
-                # print('merging isolated expressions')
-                # print(expression.expressions[index])
                 isolated_expression, i, consumed_expressions_indices = merge_isolated_expressions(i, search_order, expression, consumed_expressions_indices)
                 postings = merge_postings(postings, isolated_expression, 
                     expression.operators[search_order[i + 1]])
-                # i += 1
             i += 1
-            # print(postings)
         if expression.negated:
             return negate_posting(posting_from_skip_list(postings))
         else:
             return postings
-    # print(dictionary[query])
-    # print(get_posting_list(dictionary[query], posting_file_p))
 
 def merge_isolated_expressions(i, search_order, expression, consumed_expressions_indices):
     '''
     merge isolated expressions that does not appear next to each other in the query 
     but follows each other in search order
     '''
-    # print('isolated operator index ' + str(search_order[i]) + ' ' + str(search_order[i] + 1))
     isolated_expression = merge_postings(search_expression(expression.expressions[search_order[i]]), 
             search_expression(expression.expressions[search_order[i] + 1]), 
             expression.operators[search_order[i]])
     consumed_expressions_indices.append(search_order[i])
     consumed_expressions_indices.append(search_order[i] + 1)
     if search_order[i + 1] in consumed_expressions_indices or search_order[i + 1] + 1 in consumed_expressions_indices:
-        # next expression is no longer isolated
         return isolated_expression, i, consumed_expressions_indices
     else:
         # otherwise recursively merge isolated expressions until we find non-isolated expression
@@ -360,22 +331,15 @@ def merge_isolated_expressions(i, search_order, expression, consumed_expressions
         nested_isolated_expression, new_i, consumed_expressions_indices = merge_isolated_expressions(i + 1, 
             search_order, expression, consumed_expressions_indices)
         correct_merge_operator = get_isolated_merge_operator(search_order[i], search_order[new_i+1:], consumed_expressions_indices)
-        # print('using operator index ' + str(correct_merge_operator) + ' for merging nested expressions')
         return merge_postings(isolated_expression, nested_isolated_expression, 
             expression.operators[search_order[new_i + 1]]), new_i, consumed_expressions_indices
 
 def get_isolated_merge_operator(last_used_operator, remaining_operators, consumed_expressions_indices):
     '''get the correct merge operator for isolated expressions'''
-    # print('get_isolated_merge_operator')
-    # print(last_used_operator)
-    # print(remaining_operators)
-    # print(consumed_expressions_indices)
     available_indices = []
     for index in remaining_operators:
         if index in consumed_expressions_indices and (index + 1) in consumed_expressions_indices:
             available_indices.append(index)
-    # print('available_indices')
-    # print(available_indices)
     if (last_used_operator + 1) in available_indices:
         return last_used_operator + 1
     elif (last_used_operator - 1) in available_indices:
@@ -393,8 +357,6 @@ def search():
         for i, term in enumerate(dicts):
             term, freq = term.strip('\r\n').strip('\n').split(' ')
             dictionary[term] = (i + 1, freq)
-            # term = term.strip('\r\n').strip('\n')
-            # dictionary[term] = (i + 1, 1)
 
     with open(queries_file_q) as queries:
         for query in queries:
