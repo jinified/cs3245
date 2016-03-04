@@ -308,7 +308,7 @@ def search_expression(expression):
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
                 print('merging')
-                print(expression.expressions[index])
+                # print(expression.expressions[index])
                 postings = merge_postings(postings, search_expression(expression.expressions[index]), 
                     expression.operators[index])
                 consumed_expressions_indices.append(index)
@@ -316,13 +316,13 @@ def search_expression(expression):
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
                 print('merging')
-                print(expression.expressions[index])
+                # print(expression.expressions[index])
                 postings = merge_postings(postings, search_expression(expression.expressions[index + 1]), 
                     expression.operators[index])
                 consumed_expressions_indices.append(index + 1)
             else:
                 print('merging isolated expressions')
-                print(expression.expressions[index])
+                # print(expression.expressions[index])
                 isolated_expression = merge_postings(search_expression(expression.expressions[index]), 
                     search_expression(expression.expressions[index + 1]), 
                     expression.operators[index])
@@ -331,7 +331,6 @@ def search_expression(expression):
                 i += 1
                 consumed_expressions_indices.append(index)
                 consumed_expressions_indices.append(index + 1)
-                print('Cannot find expression to merge')
             i += 1
             # print(postings)
         if expression.negated:
