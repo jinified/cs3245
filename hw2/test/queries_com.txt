@@ -1,0 +1,3 @@
+bank AND city
+weather AND company
+bank AND city OR weather AND company

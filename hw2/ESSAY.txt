@@ -1,4 +1,4 @@
-Questions 1:
+Question 1:
  
 Though we do not normally search for numbers, we should not completely remove these numbers because numbers are 
 important when searching for model number, contact number, date etc. Perhaps we can store entries for numbers 
@@ -16,6 +16,8 @@ After removing term that consists of partial numbers:
 	postings.txt   - 3276 KB      postings_no__number.txt       - 2895 KB
 	reduction in space ~ 11.35 %
 
+Question 2:
+Both the dictionary and postings file will have fewer entries and take up less space
 
 Question 3:
 

@@ -146,7 +146,7 @@ def union_postings(res1, res2):
             answer.append(res2[counter2][0])
         counter2 += 1
     # Re-calculate skip pointers
-    print(answer)
+    # print(answer)
     answer = generate_skiplist(answer)
     return answer
 
@@ -187,17 +187,35 @@ def get_sized_operator_order(operators, sizes):
     '''
     orderAND = []
     orderOR = []
+    sizeEstimates = []
     for i, operator in enumerate(operators):
         sizeEstimate = get_combined_size_estimate(sizes[i], sizes[i + 1], operator)
+        # print('sizeEstimate')
+        # print(sizeEstimate)
+        # print(operator)
         if operator == 'AND':
             orderAND.append(i)
+            sizeEstimates.append(sizeEstimate)
         elif operator == 'OR':
             orderOR.append(i)
+            sizeEstimates.append(sizeEstimate)
         else:
             print('Invalid operator')
             exit(-1)
-    sorted(orderAND, key=lambda i:sizes[i])
-    sorted(orderOR, key=lambda i:sizes[i])
+    # print('sizeEstimates')
+    # print(sizeEstimates)
+    # print('orderAND')
+    # print(orderAND)
+    # print('orderOR')
+    # print(orderOR)
+    # sorted(orderAND, key=lambda i:sizeEstimates[i])
+    orderAND = [x for (y, x) in sorted(zip(sizeEstimates,orderAND))]
+    # sorted(orderOR, key=lambda i:sizeEstimates[i])
+    orderOR = [x for (y, x) in sorted(zip(sizeEstimates,orderOR))]
+    # print('orderAND')
+    # print(orderAND)
+    # print('orderOR')
+    # print(orderOR)
     return orderAND + orderOR
 
 def get_combined_size_estimate(first_size, second_size, operator):
@@ -229,16 +247,22 @@ def get_size(expression):
         consumed_expressions_indices.append(order[0])
         consumed_expressions_indices.append(order[0] + 1)
         for i in order[1:]:
-            if i in consumed_expressions_indices:
+            if (i + 1) not in consumed_expressions_indices:
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
                 size = get_combined_size_estimate(size, get_size(expression.expressions[i + 1]),
                     expression.operators[order[i]])
                 consumed_expressions_indices.append(i + 1)
-            else:
+            elif i not in consumed_expressions_indices:
                 size = get_combined_size_estimate(size, get_size(expression.expressions[i]),
                     expression.operators[order[i]])
                 consumed_expressions_indices.append(i)
+            elif (i - 1) not in consumed_expressions_indices:
+                size = get_combined_size_estimate(size, get_size(expression.expressions[i - 1]),
+                    expression.operators[order[i]])
+                consumed_expressions_indices.append(i - 1)
+            else:
+                print('Cannot find expression to merge')
         return size
 
 def negate_posting(posting):
@@ -253,6 +277,8 @@ def get_negated_posting(token):
 
 def search_expression(expression):
     '''Performs serach on an expression and returns the postings of DocIDs as a list'''
+    print('searching')
+    print(expression)
     if expression.token is not None:
         # Expression is token
         if expression.negated:
@@ -264,22 +290,50 @@ def search_expression(expression):
     else:
         sizes = [get_size(i) for i in expression.expressions]
         search_order = get_sized_operator_order(expression.operators, sizes)
+        # print('sizes')
+        # print(sizes)
+        print('search_order')
+        print(search_order)
         consumed_expressions_indices = []
         postings = merge_expressions(expression.expressions[search_order[0]], 
                 expression.expressions[search_order[0] + 1], expression.operators[search_order[0]])
         consumed_expressions_indices.append(search_order[0])
         consumed_expressions_indices.append(search_order[0] + 1)
-        for i in search_order[1:]:
-            if i in consumed_expressions_indices:
+        rest = search_order[1:]
+        i = 1
+        while i < len(search_order):
+            index = search_order[i]
+            print(index)
+            if (index + 1) in consumed_expressions_indices:
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
-                postings = merge_postings(postings, search_expression(expression.expressions[i + 1]), 
-                    expression.operators[search_order[i]])
-                consumed_expressions_indices.append(i + 1)
+                print('merging')
+                print(expression.expressions[index])
+                postings = merge_postings(postings, search_expression(expression.expressions[index]), 
+                    expression.operators[index])
+                consumed_expressions_indices.append(index)
+            elif index in consumed_expressions_indices:
+                # because operators AND and OR are left and right associative, we need to decide which
+                # expression to be combined
+                print('merging')
+                print(expression.expressions[index])
+                postings = merge_postings(postings, search_expression(expression.expressions[index + 1]), 
+                    expression.operators[index])
+                consumed_expressions_indices.append(index + 1)
             else:
-                postings = merge_postings(postings, expression.expressions[i],
-                    expression.operators[search_order[i]])
-                consumed_expressions_indices.append(i)
+                print('merging isolated expressions')
+                print(expression.expressions[index])
+                isolated_expression = merge_postings(search_expression(expression.expressions[index]), 
+                    search_expression(expression.expressions[index + 1]), 
+                    expression.operators[index])
+                postings = merge_postings(postings, isolated_expression, 
+                    expression.operators[search_order[i + 1]])
+                i += 1
+                consumed_expressions_indices.append(index)
+                consumed_expressions_indices.append(index + 1)
+                print('Cannot find expression to merge')
+            i += 1
+            # print(postings)
         if expression.negated:
             return negate_posting(posting_from_skip_list(postings))
         else:
@@ -307,6 +361,7 @@ def search():
             result = posting_from_skip_list(search_expression(expression))
             results.append(" ".join(result))
             print('result')
+            print(len(result))
             print(" ".join(result))
 
     with open(output_file, "w") as o:
