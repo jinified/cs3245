@@ -3,3 +3,9 @@ weather AND company
 bank AND city OR weather AND company
 local AND store
 bank AND city OR weather AND company OR local AND store
+apple AND green
+bank AND city OR weather AND company OR local AND store OR (apple AND green)
+apple
+bank AND city OR weather AND company OR local AND store OR apple
+green
+bank AND city OR weather AND company OR local AND store OR apple OR green
