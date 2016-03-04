@@ -90,8 +90,6 @@ def parse_query(query, is_query_negated = False):
         # query = stemmer.stem(elements[x])
 
 def intersect_postings(res1, res2):
-    # print(res1)
-    # print(res2)
     answer = []
     counter1 = 0
     counter2 = 0
@@ -105,14 +103,12 @@ def intersect_postings(res1, res2):
         elif docID1 < docID2:
             skip_pointer = res1[counter1][1]
             if (not skip_pointer == -1) and (int(res1[skip_pointer][0]) < docID2):
-                # print('skip 1')
                 counter1 = skip_pointer
             else:
                 counter1 += 1
         else:
             skip_pointer = res2[counter2][1]
             if (not skip_pointer == -1) and (int(res2[skip_pointer][0]) < docID1):
-                # print('skip 2')
                 counter2 = skip_pointer
             else:
                 counter2 += 1
@@ -146,7 +142,6 @@ def union_postings(res1, res2):
             answer.append(res2[counter2][0])
         counter2 += 1
     # Re-calculate skip pointers
-    # print(answer)
     answer = generate_skiplist(answer)
     return answer
 
@@ -262,8 +257,6 @@ def get_negated_posting(token):
 
 def search_expression(expression):
     '''Performs serach on an expression and returns the postings of DocIDs as a list'''
-    print('searching')
-    print(expression)
     if expression.token is not None:
         # Expression is token
         if expression.negated:
@@ -275,8 +268,6 @@ def search_expression(expression):
     else:
         sizes = [get_size(i) for i in expression.expressions]
         search_order = get_sized_operator_order(expression.operators, sizes)
-        print('search_order')
-        print(search_order)
         consumed_expressions_indices = []
         postings = merge_expressions(expression.expressions[search_order[0]], 
                 expression.expressions[search_order[0] + 1], expression.operators[search_order[0]])
@@ -286,7 +277,6 @@ def search_expression(expression):
         i = 1
         while i < len(search_order):
             index = search_order[i]
-            # print('operator index: ' + str(index))
             if (index + 1) in consumed_expressions_indices and index in consumed_expressions_indices:
                 # expressions were already merged as isolated expressions
                 pass
@@ -326,7 +316,6 @@ def merge_isolated_expressions(i, search_order, expression, consumed_expressions
         return isolated_expression, i, consumed_expressions_indices
     else:
         # otherwise recursively merge isolated expressions until we find non-isolated expression
-        # print('nested isolated expression')
         nested_isolated_expression, new_i, consumed_expressions_indices = merge_isolated_expressions(i + 1, 
             search_order, expression, consumed_expressions_indices)
         correct_merge_operator = get_isolated_merge_operator(search_order[i], search_order[new_i+1:], consumed_expressions_indices)
@@ -363,9 +352,8 @@ def search():
             expression = parse_query(query.strip('\r\n').strip('\n'))
             result = posting_from_skip_list(search_expression(expression))
             results.append(" ".join(result))
-            print('result')
-            print(len(result))
-            print(" ".join(result))
+            print('result length: ' + str(len(result)))
+            # print(" ".join(result))
 
     with open(output_file, "w") as o:
         o.write('\n'.join(results))

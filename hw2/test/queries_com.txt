@@ -9,6 +9,13 @@ apple
 bank AND city OR weather AND company OR local AND store OR apple
 green
 bank AND city OR weather AND company OR local AND store OR apple OR green
+bank AND city OR weather AND company OR local AND store OR (apple OR green)
+bank AND city OR (weather AND company) OR local AND store OR (apple OR green)
+bank AND city OR (weather AND company OR local) AND store OR (apple OR green)
+weather AND company OR local
+store
+(weather AND company OR local) AND store
+(weather AND company OR local) OR store
 kill
 bull
 stock
