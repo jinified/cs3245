@@ -5,13 +5,14 @@ import sys
 import getopt
 import glob
 import math
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
 from util import *
+from ordereddict import OrderedDict
 
 ''' Index files into dictornary and posting list
 Expected operations: tokenize, stemmer and case folding 
