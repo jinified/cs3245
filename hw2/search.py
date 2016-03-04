@@ -303,7 +303,7 @@ def search_expression(expression):
         i = 1
         while i < len(search_order):
             index = search_order[i]
-            print(index)
+            print('operator index: ' + str(index))
             if (index + 1) in consumed_expressions_indices:
                 # because operators AND and OR are left and right associative, we need to decide which
                 # expression to be combined
@@ -323,14 +323,10 @@ def search_expression(expression):
             else:
                 print('merging isolated expressions')
                 # print(expression.expressions[index])
-                isolated_expression = merge_postings(search_expression(expression.expressions[index]), 
-                    search_expression(expression.expressions[index + 1]), 
-                    expression.operators[index])
+                isolated_expression, i, consumed_expressions_indices = merge_isolated_expressions(i, search_order, expression, consumed_expressions_indices)
                 postings = merge_postings(postings, isolated_expression, 
                     expression.operators[search_order[i + 1]])
                 i += 1
-                consumed_expressions_indices.append(index)
-                consumed_expressions_indices.append(index + 1)
             i += 1
             # print(postings)
         if expression.negated:
@@ -339,6 +335,23 @@ def search_expression(expression):
             return postings
     # print(dictionary[query])
     # print(get_posting_list(dictionary[query], posting_file_p))
+
+def merge_isolated_expressions(i, search_order, expression, consumed_expressions_indices):
+    isolated_expression = merge_postings(search_expression(expression.expressions[search_order[i]]), 
+            search_expression(expression.expressions[search_order[i] + 1]), 
+            expression.operators[search_order[i]])
+    consumed_expressions_indices.append(search_order[i])
+    consumed_expressions_indices.append(search_order[i] + 1)
+    if search_order[i + 1] in consumed_expressions_indices or search_order[i + 1] + 1 in consumed_expressions_indices:
+        # next expression is no longer isolated
+        return isolated_expression, i, consumed_expressions_indices
+    else:
+        print('nested isolated expression')
+        nested_isolated_expression, i, consumed_expressions_indices = merge_isolated_expressions(i + 1, 
+            search_order, expression, consumed_expressions_indices)
+        return merge_postings(isolated_expression, nested_isolated_expression, 
+            expression.operators[search_order[i + 1]]), i + 1, consumed_expressions_indices
+
 
 def search():
     stemmer = PorterStemmer()

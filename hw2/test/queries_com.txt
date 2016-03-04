@@ -1,3 +1,5 @@
 bank AND city
 weather AND company
 bank AND city OR weather AND company
+local AND store
+bank AND city OR weather AND company OR local AND store
