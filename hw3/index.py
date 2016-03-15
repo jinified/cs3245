@@ -2,68 +2,69 @@
 
 import os
 import sys
-import getopt
-import glob
+import argparse
 import math
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
+import nltk
 from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
 from util import *
-from ordereddict import OrderedDict
 
 ''' Index files into dictornary and posting list
 Expected operations: tokenize, stemmer and case folding 
 '''
 
-def generate_word_dict(filedir):
-    ''' Generates dictionary of posting list'''
+''' Globals ''' 
+stopwords = set(nltk.corpus.stopwords.words('english'))
+
+def generate_word_dict(filedir, remove_stopwords):
+    ''' Generates dictionary of posting list
+    return: dictionary and length of documents processed'''
     corpus = create_corpus(filedir)
     doc_ids = get_doc_ids(filedir)
     word_dict = defaultdict(list)
     print("Generating Word Dict")
     for i in doc_ids:
-        words = set([normalize_token(j) for j in corpus.words(i)])
-        
-        for word in words:
-            word_dict[word].append(i)
-    return OrderedDict(sorted(word_dict.items()))
+        words = [normalize_token(j) for j in corpus.words(i)]
+        # Remove stopwords if specified
+        if remove_stopwords: 
+            words = [word for word in words if word not in stopwords]
+        fdist = getFreqDist(words)
+        # Calculates L2 Norm for term frequency in document
+        tf_norm = calcL2Norm([tf(freq) for freq in fdist.values()])
 
-def index():
-    global input_file_i, dictionary_file_d, posting_file_p
+        for word, freq in fdist.items():
+            word_dict[word].append((i, tf(freq)/tf_norm))
 
-    word_dict = generate_word_dict(input_file_i)
-    with open(dictionary_file_d, "w") as d, open(posting_file_p, "w") as p:
+    # Sort according to weight descending order
+    word_dict = {term:
+        ['{} {}'.format(i[0], i[1]) for i in sorted(posting, key=lambda x:x[1], reverse=True)] 
+        for term, posting in word_dict.items()}
+    return OrderedDict(sorted(word_dict.items())), len(doc_ids)
+
+def index(input_path, dictionary_path, posting_path, remove_stopwords=False):
+    ''' Optimisation 
+    1. Store top K docIds'''
+    word_dict, N = generate_word_dict(input_path, remove_stopwords)
+
+    with open(dictionary_path, "w") as d, open(posting_path, "w") as p:
         print("Writing to files")
         for k, v in word_dict.items():
-            d.write("{} {}\n".format(k, len(v)))
-            p.write(",".join(v) + "\n")
-        # Write the entire docID to the end of postings file
-        p.write(",".join(get_doc_ids(input_file_i)) + "\n")
+            d.write("{} {}\n".format(k, idf(N, len(v))))
+            p.write(','.join(v) + "\n")
     
-def usage():
-    print "usage: " + sys.argv[0] + " -i training-input-file -d output-dictionary-file -p output-posting-file"
-
-input_file_i = dictionary_file_d = posting_file_p = None
-try:
-    opts, args = getopt.getopt(sys.argv[1:], 'i:d:p:')
-except getopt.GetoptError, err:
-    usage()
-    sys.exit(2)
-for o, a in opts:
-    if o == '-i':
-        input_file_i = a
-    elif o == '-d':
-        dictionary_file_d = a
-    elif o == '-p':
-        posting_file_p = a
-    else:
-        assert False, "unhandled option"
-if input_file_i == None or dictionary_file_d == None or posting_file_p == None:
-    usage()
-    sys.exit(2)
+def parse_args(args=None):
+    parser = argparse.ArgumentParser(description="Indexes files into dictionary and postings")
+    parser.add_argument('-i', '--input', required=True)
+    parser.add_argument('-d', '--dict', help='dictionary output', default='dictionary.txt')
+    parser.add_argument('-p', '--postings', help='postings output', default='postings.txt')
+    # Optinal flags
+    parser.add_argument('--s', help='remove stop words', action='store_true')
+    return parser.parse_args(args)
 
 if __name__ == "__main__":
-    index()
+    result = parse_args(sys.argv[1:])
+    index(result.input, result.dict, result.postings, result.s)
