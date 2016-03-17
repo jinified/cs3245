@@ -1,31 +1,42 @@
 Question 1:
  
-Though we do not normally search for numbers, we should not completely remove these numbers because numbers are 
-important when searching for model number, contact number, date etc. Perhaps we can store entries for numbers 
-in separate dictionary file and posting file. Normalization of numbers can be done by checking for existence of digit 
-in each term by using the `isdigit` method. However, there are still term such as `05p` that is not considered a number. 
-Below is the comparison after removing term that contains a) all numbers b) partial numbers
+Method 1 (Positional indexes)
+Since the Vector Space Model works like a bag of words, we will use this concept and process the phrasal search to consider the ordering of words in a document. 
 
-After removing term that consists of all numbers:
-	dictionary.txt - 179 KB       dictionary_no_pure_number.txt - 170 KB       
-	postings.txt   - 3276 KB      postings_no_pure_number.txt   - 2904 KB
-	reduction in space ~ 11.03 %
+Algorithm sketch:
+1. Treat the different terms in the phrasal search 
+2. Continue as per normal with the usual vector space calculations and normalise for each term
+3. OR the different terms together.
 
-After removing term that consists of partial numbers:
-	dictionary.txt - 179 KB       dictionary_no_number.txt      - 168 KB
-	postings.txt   - 3276 KB      postings_no__number.txt       - 2895 KB
-	reduction in space ~ 11.35 %
+The result may not return documents where the words are in the correct order.
+Eg: "Clinton beats Trump" and "Trump beats Clinton"
+
+Thus we need to look look at the positional indices of the words to check the permutations.
+We can also use a soft conjunction on the phrasal query to ensure that there are no missing words and use this to rank the documents.
+
+Method 2 (biword indexes)
+Instead of just looking at individual words, we could use biwords or triword indexes instead. 
+This would ensure more accurate results by provide some form of ordering for us to search upon. 
+However, this would take up alot of space.
 
 Question 2:
 
-Both the dictionary and postings file will have fewer entries and take up less space.
-However, there will not be significant speed improvement for searching.
-Find the index of the term in dictionary still takes constant time and getting the postings list from the disk still takes up the same constant disk seek time for all the remaining terms.
-The side effect of removing stop words is that the user will not be able to query them or phrase containing the stop words.
+Longer documents have naturally more terms and higher tf values. Also, they would have more distinct terms. 
+This would lead to higher scores of longer documents due to a greater match to the query terms.
+
+There are chances where there could be a lower score as longer documents can be verbose and cover multiple topics. 
+However, even a small score is better than a 0 when calculating the weight. I believe that there is still a bias towards longer documents. EG:
+	- Verbose: document is expressed in more words than needed. Low wt and low normalised score.
+	- Multiple topics: Search terms would only match a small portion of the doc. This would result in a lower weight and subsequent score. Given let's say a research paper where the query is fully answered and elaborated very well in a part of the document. This would not be ranked highly because of the lower weightage of the query terms in the document due to the amount of extra words coming in from other parts of the reasearch paper.
+	
+The normalisation is insufficient. It is necessary to account for the length of the document. 
+We should skew the score to account for the effect of document length on relevance similar to the textbook.
+
+'ltc.lnc' is sufficient. In the Reuters collection, the document lengths are similar. 
+The document structure is also standard. It is usually straight to the point and not verbose.
 
 Question 3:
 
-By default, both `sent_tokenize` and `word_tokenize` use the PunktTokenizer which 
-may split word such as `i.e`, `dr.` or `mr.`. We can add a list of abbreviations
-as argument to PunktTokenizer in order to not segment them apart i.e `Dr. House` should 
-not return ['Dr.', 'House']. 	
+Yes. When the user specifies a zone to search for, we are able to make our searches relevant and return more accurate results to the user.
+However this can be a problem if some documents do not use metadata. 
+We may have relevant documents missing in our search results.

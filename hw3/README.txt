@@ -1,8 +1,8 @@
 This is the README file for (A0112213E-A0093910H)'s submission
 
 == Personal Information ==
-Matric No: A0112213E-A0093910H
-Email: a0112213@u.nus.edu-a0093910@u.nus.edu
+Matric No: A0112213E-A0099712W
+Email: a0112213@u.nus.edu-a0099712@u.nus.edu
 
 == General Notes about this assignment ==
 
@@ -37,13 +37,13 @@ ordereddict.py	 - OrderedDict's implemenation by Raymond Hettinger for python ve
 
 Please initial one of the following statements.
 
-[x] We, A0112213E-A0093910H, certify that we have followed the CS 3245 Information
+[x] We, A0112213E-A0099712W certify that we have followed the CS 3245 Information
 Retrieval class guidelines for homework assignments.  In particular, We
 expressly vow that We have followed the Facebook rule in discussing
 with others in doing the assignment and did not take notes (digital or
 printed) from the discussions.  
 
-[] We, A0112213E-A0093910H, did not follow the class rules regarding homework
+[] We, A0112213E-A0099712W did not follow the class rules regarding homework
 assignment, because of the following reason:
 
 We suggest that We should be graded as follows:
