@@ -82,7 +82,7 @@ def write_to_file(filepath, content):
 ''' Posting list '''
 
 
-def get_posting_list(index, filepath):
+def get_posting_list(index, filepath, k):
     '''Retrieves a posting list given a file handle
     format: "docId1 tf_norm1", "docId2 tf_norm2" ... 
     k: upper limit of docIds returned'''
@@ -94,7 +94,7 @@ def get_posting_list(index, filepath):
             return [[float(j) for j in i.split(' ')] for i in posting_list]
         except StopIteration:
             print("Encounters end of iterator")
-        return posting_list
+        return posting_list[:k]
 
 if __name__ == "__main__":
     pass

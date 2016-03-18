@@ -3,13 +3,9 @@
 import os
 import sys
 import argparse
-import math
 from collections import defaultdict, OrderedDict
 
 import nltk
-from nltk.tokenize import sent_tokenize
-from nltk.stem.porter import PorterStemmer
-from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
 from util import *
 
@@ -19,6 +15,7 @@ Expected operations: tokenize, stemmer and case folding
 
 ''' Globals ''' 
 stopwords = set(nltk.corpus.stopwords.words('english'))
+
 
 def generate_word_dict(filedir, remove_stopwords):
     ''' Generates dictionary of posting list
@@ -45,6 +42,7 @@ def generate_word_dict(filedir, remove_stopwords):
         for term, posting in word_dict.items()}
     return OrderedDict(sorted(word_dict.items())), len(doc_ids)
 
+
 def index(input_path, dictionary_path, posting_path, remove_stopwords=False):
     ''' Optimisation 
     1. Store top K docIds'''
@@ -56,6 +54,7 @@ def index(input_path, dictionary_path, posting_path, remove_stopwords=False):
             d.write("{} {}\n".format(k, idf(N, len(v))))
             p.write(','.join(v) + "\n")
     
+
 def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Indexes files into dictionary and postings")
     parser.add_argument('-i', '--input', required=True)

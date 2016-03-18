@@ -42,7 +42,7 @@ def handleQuery(query, dictionary, posting_path, k):
     weights = [tf(freq) * float(dictionary.get(word, (0, 0))[1]) for word, freq in fdist.items()]
     weights_norm = calcL2Norm(weights)
     # Prevent division by zero error
-    return [(q, w/(weights_norm+0.000001), [] if q not in dictionary else get_posting_list(dictionary[q][0], posting_path))
+    return [(q, w/(weights_norm+0.000001), [] if q not in dictionary else get_posting_list(dictionary[q][0], posting_path, k))
         for q, w in zip(query, weights)]
 
 
