@@ -21,22 +21,23 @@ However, this would take up alot of space.
 
 Question 2:
 
-Longer documents have naturally more terms and higher tf values. Also, they would have more distinct terms. 
-This would lead to higher scores of longer documents due to a greater match to the query terms.
+i) A longer queries will take longer computation time to generate ranked documents compared to shorter queries
+due to increase in number of terms that needed to be processed since no form of heuristic is done to choose
+selected number of terms. A longer docoment would be ranked lower due to cosine normalization which
+punishes term weight in accordance to length.
 
-There are chances where there could be a lower score as longer documents can be verbose and cover multiple topics. 
-However, even a small score is better than a 0 when calculating the weight. I believe that there is still a bias towards longer documents. EG:
-	- Verbose: document is expressed in more words than needed. Low wt and low normalised score.
-	- Multiple topics: Search terms would only match a small portion of the doc. This would result in a lower weight and subsequent score. Given let's say a research paper where the query is fully answered and elaborated very well in a part of the document. This would not be ranked highly because of the lower weightage of the query terms in the document due to the amount of extra words coming in from other parts of the reasearch paper.
-	
-The normalisation is insufficient. It is necessary to account for the length of the document. 
-We should skew the score to account for the effect of document length on relevance similar to the textbook.
+ii) It is not sufficient as shown in the plot of relevance against document length where the
+normalization factor causes the calculated relevance to deviate away from actual relevance 
+of the documents. We will need to implement a pivoted document length normalization to circumvent 
+the situation.
 
-'ltc.lnc' is sufficient. In the Reuters collection, the document lengths are similar. 
-The document structure is also standard. It is usually straight to the point and not verbose.
+iii) The ltc.lnc will be sufficient for the Reuter-21578 collection if the query does not contain terms
+that occur frequently in the collection. Since idf is not performed, rarer terms are not weighted 
+more heavily compared to common terms like "of" or "and" which may affect relevance of retrieved
+documents. However, since normalization is performed, it may not have such a big impact.
 
 Question 3:
 
 Yes. When the user specifies a zone to search for, we are able to make our searches relevant and return more accurate results to the user.
-However this can be a problem if some documents do not use metadata. 
-We may have relevant documents missing in our search results.
+Though some documents may not contain metadata, we could use information such as first line of 
+the document as title for a document. 
