@@ -1,35 +1,26 @@
 #!/use/bin/env python3
 
-import os
 import sys
 import argparse
 from collections import defaultdict, OrderedDict
 
-import nltk
-
-from util import *
+from utility.util import *
 
 ''' Index files into dictornary and posting list
 Expected operations: tokenize, stemmer and case folding 
 '''
 
-''' Globals ''' 
-stopwords = set(nltk.corpus.stopwords.words('english'))
 
-
-def generate_word_dict(filedir, remove_stopwords):
+def generate_word_dict(filedir):
     ''' Generates dictionary of posting list
     return: dictionary and length of documents processed'''
-    corpus = create_corpus(filedir)
+    corpus = create_corpus_xml(filedir)
     doc_ids = get_doc_ids(filedir)
     word_dict = defaultdict(list)
     print("Generating Word Dict")
     for i in doc_ids:
-        words = [normalize_token(j) for j in corpus.words(i)]
-        # Remove stopwords if specified
-        if remove_stopwords: 
-            words = [word for word in words if word not in stopwords]
-        fdist = getFreqDist(words)
+        # Generates frequency distribution from processed words
+        fdist = getFreqDist(preprocess(corpus.words(i)))
         # Calculates L2 Norm for term frequency in document
         tf_norm = calcL2Norm([tf(freq) for freq in fdist.values()])
 
@@ -43,10 +34,10 @@ def generate_word_dict(filedir, remove_stopwords):
     return OrderedDict(sorted(word_dict.items())), len(doc_ids)
 
 
-def index(input_path, dictionary_path, posting_path, remove_stopwords=False):
+def index(input_path, dictionary_path, posting_path):
     ''' Optimisation 
     1. Store top K docIds'''
-    word_dict, N = generate_word_dict(input_path, remove_stopwords)
+    word_dict, N = generate_word_dict(input_path)
 
     with open(dictionary_path, "w") as d, open(posting_path, "w") as p:
         print("Writing to files")
@@ -60,10 +51,8 @@ def parse_args(args=None):
     parser.add_argument('-i', '--input', required=True)
     parser.add_argument('-d', '--dict', help='dictionary output', default='dictionary.txt')
     parser.add_argument('-p', '--postings', help='postings output', default='postings.txt')
-    # Optinal flags
-    parser.add_argument('--s', help='remove stop words', action='store_true')
     return parser.parse_args(args)
 
 if __name__ == "__main__":
     result = parse_args(sys.argv[1:])
-    index(result.input, result.dict, result.postings, result.s)
+    index(result.input, result.dict, result.postings)

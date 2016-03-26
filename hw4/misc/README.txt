@@ -17,10 +17,18 @@ IPC			- retrieves definition for classes in corpus
 
 2. XML Parsing
 
-Uses lxml to parse query and corpus into native dictionary format. Fields without 
+ - Uses lxml to parse query and corpus into native dictionary format. Fields without 
 any content is set as empty string for ease of computation
+ - Use NLTK's XMLCorpusReader 
 
-3. Document Representation
+
+3. Term Normalization 
+
+ - stemming, case-folding, removing punctuations, removing stopword
+
+4. Document Representation
+
+ - includes every terms 
  - includes `title`, `abstract`, `patent number` 
 
 ## Indexing 

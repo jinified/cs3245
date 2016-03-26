@@ -1,19 +1,31 @@
 #!/use/bin/env python3
+
+import sys
+import unicodedata
 import os
 import math
+import nltk
 from collections import OrderedDict
 from itertools import islice
 
 from nltk.probability import FreqDist
 from nltk.stem.porter import PorterStemmer
+from nltk.corpus import XMLCorpusReader
 from nltk.corpus.reader.plaintext import PlaintextCorpusReader
 
+from parser import *
+
+''' Global '''
+
 stemmer = PorterStemmer()
+stopwords = set(nltk.corpus.stopwords.words('english')) 
+# Punctuations for unicode string
+exclude = dict.fromkeys(i for i in range(sys.maxunicode) if unicodedata.category(chr(i)).startswith('P'))
 
 ''' Statistics '''
 
 
-def get_score(query_list, k=10):
+def get_score(query_list):
     ranked = OrderedDict()
 
     # Ignore non-matched query
@@ -21,13 +33,14 @@ def get_score(query_list, k=10):
         if query[1] > 0:
 
             for posting in query[2]:
-                key = int(posting[0])
+                # Removes extension
+                key = posting[0].split('.')[0]
                 if key not in ranked:
                     ranked[key] = 0
-                ranked[int(posting[0])] += (query[1] * posting[1])
-
-    res = sorted(ranked, key=ranked.get, reverse=True)[:k]
-    return res
+                ranked[key] += (query[1] * posting[1])
+    
+    res = sorted(ranked, key=ranked.get, reverse=True)
+    return res[:50]
 
 
 def getFreqDist(words):
@@ -57,20 +70,22 @@ def idf(N, df):
 ''' Preprocess '''
 
 
+def preprocess(words):
+    ''' Returns a words with stopwords removal, stemmed and case-folded'''
+    return [normalize_token(i) for i in words if i not in stopwords]
+
+
 def normalize_token(token):
-    # Converts unicode string to regular string
-    return str(stemmer.stem(token.lower()))
+    ''' Normalization steps include:
+    stemming, case-folding, removing punctuations '''
+    return stemmer.stem(token.lower()).translate(exclude)
 
 ''' Input/Output '''
 
 
 def get_doc_ids(filedir):
-    return sorted(os.listdir(filedir), key=lambda x: int(x))
-
-
-def create_corpus(filedir):
-    ''' Creates a corpus based on files that matches the regex in file directory'''
-    return PlaintextCorpusReader(filedir, ".*")
+    # Removes any file extension
+    return os.listdir(filedir)
 
 
 def list_to_string(target_list, delimiter=','):
@@ -85,19 +100,42 @@ def write_to_file(filepath, content):
 ''' Posting list '''
 
 
-def get_posting_list(index, filepath, k):
+def get_posting_list(index, filepath):
     '''Retrieves a posting list given a file handle
-    format: "docId1 tf_norm1", "docId2 tf_norm2" ... 
-    k: upper limit of docIds returned'''
+    format: "docId1 tf_norm1", "docId2 tf_norm2" ... '''
     with open(filepath) as postings:
         posting_list = []
 
         try:
             posting_list = next(islice(postings, index - 1, None)).rstrip('\n').rstrip('\r\n').split(',')
-            return [[float(j) for j in i.split(' ')] for i in posting_list]
+            return [[i.split(' ')[0], float(i.split(' ')[1])] for i in posting_list]
         except StopIteration:
             print("Encounters end of iterator")
-        return posting_list[:k]
+        return posting_list
 
-if __name__ == "__main__":
-    pass
+''' Documents representation ''' 
+
+
+def create_corpus(filedir):
+    ''' Creates a corpus based on files that matches the regex in file directory'''
+    return PlaintextCorpusReader(filedir, ".*")
+
+
+def create_corpus_xml(filedir):
+    ''' Creates a corpus based on XML files that matches the regex in file directory'''
+    return XMLCorpusReader(filedir, ".*")
+
+
+def create_corpus_xml2(filedir):
+    ''' Creates a corpus based on XML files using XML parser ''' 
+    return {i: parse_xml(filedir + '/' + i) for i in get_doc_ids(filedir)}
+
+''' UNIT TESTS '''
+
+DATA_DIR = '../data/original_patsnap'
+DOC1 = 'EP0049154B2.xml'
+
+
+def test_create_corpus_xml():
+    corpus = create_corpus_xml(DATA_DIR)
+    assert len(corpus.fileids()) == len(get_doc_ids(DATA_DIR))

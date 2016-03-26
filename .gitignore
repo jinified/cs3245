@@ -1,2 +1,6 @@
 *.zip
 *.pyc
+__pycache__
+references
+.cache
+.*.swp
