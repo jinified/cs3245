@@ -89,3 +89,8 @@ I suggest that We should be graded as follows:
 
 13. Verma, M., & Varma, V. (2011, October). Patent search using IPC classification vectors. In Proceedings of the 4th workshop on Patent information retrieval (pp. 9-12). ACM.
 
+14. Past CS3245 students implementation of HW4. Mainly to verify what works.
+ - [jimmyshum](https://github.com/jimmyshum/CS3245/tree/master/A4)
+ - [Sunxperous](https://github.com/Sunxperous/cs3245_hw4)
+ - [sanlil](https://github.com/Sunxperous/cs3245_hw4)
+ - [weikengary](https://github.com/weikengary/CS3245PatentSearchEngine/blob/master/search.py)
