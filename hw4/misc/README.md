@@ -36,6 +36,25 @@ any content is set as empty string for ease of computation
 ## Searching
 ## Evaluation
 
+== Strategies by previous students ==
+
+1. Using `title` as query and `title + abstract` as document 
+2. Weighted tf-idf giving more weight to terms that appear in `title` or certain `zone`
+3. Calculate relevance to IPC groups
+4. Run search on google patent api 
+5. Stores patent info in extra file 
+6. Remove words with low idf 
+7. Using wordnet expansion 
+
+== Strategies by journal papers == 
+
+1. [Using KNN to cluster patents and BM25 as similarity function](https://drive.google.com/open?id=0B8rRUzf-5h4fbnI1d3Z2ak81aGc)
+2. [Patent Query Formulation by Synthesizing Multiple Sources of Relevance Evidence](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+3. [Wikipedia-based query phrase expansion in patent class search](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+4. [Using query logs of USPTO patent examiners for automatic query expansion in patent searching](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+5. [Building querires for prior-art search](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+6. [Leverage Conceptual Lexicon](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+
 == Files included with this submission ==
 
 ESSAY.txt		 - answers to essay questions
