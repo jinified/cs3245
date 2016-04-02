@@ -6,10 +6,13 @@ import argparse
 import logging
 import codecs
 
-from utility.util import *
 from utility.parser import parse_xml
+from utility import util
 
-''' Computes doc_ids that matches a free text query'''
+"""
+Searches corpus given query in XML format and return list of patent file names
+that matches the query
+"""
 
 # Setup environment
 start_time = time.time()
@@ -17,7 +20,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def search(queries_path, dictionary_path, posting_path, output_path):
+def primary_search(queries_path, dictionary_path, posting_path, output_path):
+    """ Searches dictionary and postings for patents that matched the query
+        Returns:
+            result      patent filenames separated by newline
+    """
     dictionary = {}
 
     with codecs.open(dictionary_path, encoding='utf-8') as dicts:
@@ -25,7 +32,7 @@ def search(queries_path, dictionary_path, posting_path, output_path):
             term, freq = term.split(' ')
             dictionary[term] = (i + 1, freq)
 
-    result = '\n'.join(get_score(handleQuery(queries_path, dictionary, posting_path)))
+    result = '\n'.join(util.get_score(handleQuery(queries_path, dictionary, posting_path)))
 
     with open(output_path, "w") as o:
         o.write(result)
@@ -37,13 +44,14 @@ def search(queries_path, dictionary_path, posting_path, output_path):
 def handleQuery(query_path, dictionary, posting_path):
     ''' Returns (term, normalized tf-idf, posting_list) '''
     words = parse_xml(query_path)['description']
-    query = preprocess(words)
-    fdist = getFreqDist(query)
-    weights = [tf(freq) * float(dictionary.get(word, (0, 0))[1]) for word, freq in fdist.items()]
-    weights_norm = calcL2Norm(weights)
+    query = util.preprocess(words)
+    fdist = util.getFreqDist(query)
+    weights = [util.tf(freq) * float(dictionary.get(word, (0, 0))[1]) for word, freq in fdist.items()]
+    weights_norm = util.calcL2Norm(weights)
     # Prevent division by zero error
-    return [(q, w/(weights_norm+0.000001), [] if q not in dictionary else get_posting_list(dictionary[q][0], posting_path))
-        for q, w in zip(query, weights)]
+    return [(q, w/(weights_norm+0.000001),
+            [] if q not in dictionary else util.get_posting_list(dictionary[q][0], posting_path))
+            for q, w in zip(query, weights)]
 
 
 def parse_args(args=None):
@@ -58,5 +66,5 @@ def parse_args(args=None):
 
 if __name__ == "__main__":
     result = parse_args(sys.argv[1:])
-    search(result.queries, result.dict, result.postings, result.output)
+    primary_search(result.queries, result.dict, result.postings, result.output)
     print("--- %s seconds ---" % (time.time() - start_time))

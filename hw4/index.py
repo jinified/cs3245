@@ -6,14 +6,21 @@ from collections import defaultdict, OrderedDict
 
 from utility.util import *
 
-''' Index files into dictornary and posting list
-Expected operations: tokenize, stemmer and case folding 
-'''
+""" 
+Index corpus into dictornary and posting list
+"""
 
 
 def generate_word_dict(filedir):
-    ''' Generates dictionary of posting list
-    return: dictionary and length of documents processed'''
+    """ Generates dictionary of posting list
+
+        Arguments:
+            filedir         directory where corpus resides
+
+        Return: 
+            dicionary       consisting of terms from corpus   
+            document_size   length of total documents processed
+    """
     corpus = create_corpus_xml(filedir)
     doc_ids = get_doc_ids(filedir)
     word_dict = defaultdict(list)
@@ -35,8 +42,6 @@ def generate_word_dict(filedir):
 
 
 def index(input_path, dictionary_path, posting_path):
-    ''' Optimisation 
-    1. Store top K docIds'''
     word_dict, N = generate_word_dict(input_path)
 
     with open(dictionary_path, "w") as d, open(posting_path, "w") as p:

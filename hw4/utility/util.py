@@ -40,7 +40,7 @@ def get_score(query_list):
                 ranked[key] += (query[1] * posting[1])
     
     res = sorted(ranked, key=ranked.get, reverse=True)
-    return res[:50]
+    return res
 
 
 def getFreqDist(words):
