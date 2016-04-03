@@ -54,6 +54,10 @@ any content is set as empty string for ease of computation
 4. [Using query logs of USPTO patent examiners for automatic query expansion in patent searching](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
 5. [Building querires for prior-art search](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
 6. [Leverage Conceptual Lexicon](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+7. [Explore Noun Phrases for retrieval](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+8. [Citation Analysis](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+9. [Explore Query Cateogrisation](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
+10. [Automatic Refinement of queries](https://drive.google.com/drive/folders/0B8rRUzf-5h4fcjhFa0xHV3RIVlU)
 
 == Files included with this submission ==
 
