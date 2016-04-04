@@ -3,7 +3,6 @@
 import codecs
 
 from search import primary_search
-from utility import util
 
 import constants as c
 
@@ -12,11 +11,10 @@ Main test suite for different queries
 """
 
 
-def test_query1():
-    result = result_to_list(primary_search(c.QUERY % 1, c.DICTIONARY, c.POSTINGS, c.OUTPUT))
-    expected = file_to_list(c.POSITIVE_RESULT % 1)
-    evaluation = evaluate_search_result(expected, result)
-    print(evaluation)
+def test_query(index):
+    result = result_to_list(primary_search(c.QUERY % index, c.DICTIONARY, c.POSTINGS, c.OUTPUT))
+    expected = file_to_list(c.POSITIVE_RESULT % index)
+    return evaluate_search_result(expected, result % index)
 
 
 def result_to_list(result):
@@ -64,4 +62,5 @@ def calc_fmeasure(precision, recall, weight=2):
     return numerator / (denominator + 0.0001)
 
 if __name__ == '__main__':
-    test_query1()
+    for i in range(1, 3):
+        print(test_query(i))
