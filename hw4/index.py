@@ -1,59 +1,46 @@
-#!/use/bin/env python3
+#!/use/bin/env python
 
 import sys
 import argparse
-from collections import defaultdict, OrderedDict
+import codecs as c
 
-from utility.util import *
+import util
+from Document import Doc
 
-""" 
-Index corpus into dictornary and posting list
+"""
+Indexes given corpus
+
 """
 
-
-def generate_word_dict(filedir):
-    """ Generates dictionary of posting list
-
-        Arguments:
-            filedir         directory where corpus resides
-
-        Return: 
-            dicionary       consisting of terms from corpus   
-            document_size   length of total documents processed
-    """
-    corpus = create_corpus_xml(filedir)
-    doc_ids = get_doc_ids(filedir)
-    word_dict = defaultdict(list)
-    print("Generating Word Dict")
-    for i in doc_ids:
-        # Generates frequency distribution from processed words
-        fdist = getFreqDist(preprocess(corpus.words(i)))
-        # Calculates L2 Norm for term frequency in document
-        tf_norm = calcL2Norm([tf(freq) for freq in fdist.values()])
-
-        for word, freq in fdist.items():
-            word_dict[word].append((i, tf(freq)/tf_norm))
-
-    # Sort according to weight descending order
-    word_dict = {term:
-        ['{} {}'.format(i[0], i[1]) for i in sorted(posting, key=lambda x:x[1], reverse=True)] 
-        for term, posting in word_dict.items()}
-    return OrderedDict(sorted(word_dict.items())), len(doc_ids)
+PATENT_INFO_PATH = 'patent_info.txt'
 
 
-def index(input_path, dictionary_path, posting_path):
-    word_dict, N = generate_word_dict(input_path)
+def index(input_path, dictionary_path, postings_path):
+    """ Saves dictionary and postings file """
+    docs, terms_dictionary = Doc.get_patent_info(input_path)
+    # Save patent info
+    util.save_dictionary(docs, PATENT_INFO_PATH)
+    write_dictionary_postings(terms_dictionary, docs, dictionary_path, postings_path)
 
-    with open(dictionary_path, "w") as d, open(posting_path, "w") as p:
-        print("Writing to files")
-        for k, v in word_dict.items():
-            d.write("{} {}\n".format(k, idf(N, len(v))))
-            p.write(','.join(v) + "\n")
-    
+
+def write_dictionary_postings(term_dictionary, docs, dictionary_path, postings_path):
+    """ Write dictionary and posting pair to relevant paths """
+    with c.open(dictionary_path, "w", encoding='utf-8') as d, c.open(postings_path, "w", encoding='utf-8') as p:
+        dictionary, postings = get_dictionary_postings(term_dictionary, docs)
+        d.write(dictionary)
+        p.write(postings)
+
+
+def get_dictionary_postings(terms_dictionary, docs):
+    dictionary = '\n'.join('{},{},{}'.format(
+        term, len(posting), sum([docs[i].get_tf(term) for i in posting])) for term, posting in terms_dictionary.items())
+    postings = '\n'.join([','.join(posting) for posting in terms_dictionary.values()])
+    return dictionary, postings
+
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Indexes files into dictionary and postings")
-    parser.add_argument('-i', '--input', required=True)
+    parser.add_argument('-i', '--input', help='corpus location', required=True)
     parser.add_argument('-d', '--dict', help='dictionary output', default='dictionary.txt')
     parser.add_argument('-p', '--postings', help='postings output', default='postings.txt')
     return parser.parse_args(args)

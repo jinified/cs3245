@@ -1,61 +1,57 @@
-#!/use/bin/env python3
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
-import time
 import argparse
-import logging
 import codecs
+from itertools import islice
 
-from utility.parser import parse_xml
-from utility import util
+import util
+from Query import Query
+
 
 """
-Searches corpus given query in XML format and return list of patent file names
-that matches the query
+Performs a patent search on given list of XML queries
+Returns: list of patent number that are relevant
 """
 
-# Setup environment
-start_time = time.time()
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+PATENT_INFO_PATH = 'patent_info.txt'
+
+patent_info = {}
+dictionary = {}
 
 
-def primary_search(queries_path, dictionary_path, posting_path, output_path):
-    """ Searches dictionary and postings for patents that matched the query
-        Returns:
-            result      patent filenames separated by newline
-    """
-    dictionary = {}
-
-    with codecs.open(dictionary_path, encoding='utf-8') as dicts:
-        for i, term in enumerate(dicts):
-            term, freq = term.split(' ')
-            dictionary[term] = (i + 1, freq)
-
-    result = '\n'.join(util.get_score(handleQuery(queries_path, dictionary, posting_path)))
-
-    with open(output_path, "w") as o:
+def search(queries_path, dictionary_path, postings_path, output_path):
+    """ Searches dictionary and postings for patents that matches the queries """
+    global patent_info, dictionary
+    dictionary = read_dictionary(dictionary_path)
+    patent_info = util.load_dictionary(PATENT_INFO_PATH)
+    query = Query(queries_path, dictionary, patent_info)
+    result = ' '.join(query.get_ranked_docs())
+    with codecs.open(output_path, 'w', encoding='utf-8') as o:
         o.write(result)
-        o.write('\n')
-
-    return result
 
 
-def handleQuery(query_path, dictionary, posting_path):
-    ''' Returns (term, normalized tf-idf, posting_list) '''
-    words = parse_xml(query_path)['description']
-    query = util.preprocess(words)
-    fdist = util.getFreqDist(query)
-    weights = [util.tf(freq) * float(dictionary.get(word, (0, 0))[1]) for word, freq in fdist.items()]
-    weights_norm = util.calcL2Norm(weights)
-    # Prevent division by zero error
-    return [(q, w/(weights_norm+0.000001),
-            [] if q not in dictionary else util.get_posting_list(dictionary[q][0], posting_path))
-            for q, w in zip(query, weights)]
+def read_posting_list(index, postings_path):
+    """ Retrieves a posting list given a file handle """
+    with codecs.open(postings_path, 'r', encoding='utf-8') as postings:
+        try:
+            return next(islice(postings, index - 1, None)).decode('utf-8').rstrip('\n').rstrip('\r\n').split(',')
+        except StopIteration:
+            print("Encounters end of iterator")
+        return []
+
+
+def read_dictionary(dictionary_path):
+    """ Returns stored dictionary from the given path where key = (term, doc freq, corpus freq) """
+    dictionary = {}
+    with codecs.open(dictionary_path, 'r', encoding='utf-8') as d:
+        dictionary = {j.rstrip('\n'): i + 1 for i, j in enumerate(d)}
+    return dictionary
 
 
 def parse_args(args=None):
-    parser = argparse.ArgumentParser(description="Indexes files into dictionary and postings")
+    parser = argparse.ArgumentParser(description="Retrieves relevant patents for given queries")
     parser.add_argument('-q', '--queries', required=True, help='list of user queries')
     parser.add_argument('-d', '--dict', required=True, help='dictionary output', default='dictionary.txt')
     parser.add_argument('-p', '--postings', required=True, help='postings output', default='postings.txt')
@@ -66,5 +62,4 @@ def parse_args(args=None):
 
 if __name__ == "__main__":
     result = parse_args(sys.argv[1:])
-    primary_search(result.queries, result.dict, result.postings, result.output)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    search(result.queries, result.dict, result.postings, result.output)
