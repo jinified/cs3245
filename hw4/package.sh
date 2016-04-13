@@ -1,3 +1,3 @@
 #!/bin/bash
-cp *.py A0112213E &&
-zip -r A0112213E.zip A0112213E
+cp *.py ./submission/A0112213E &&
+zip -r ./submission/A0112213E.zip ./submission/A0112213E
